@@ -1,7 +1,6 @@
 local schemeteleport = Class(function(self, inst)
     self.inst = inst
 	self.target = nil
-	self.islinked = false
 end)
 
 function schemeteleport:OnActivate(other, doer) 
@@ -17,8 +16,8 @@ function schemeteleport:Activate(doer)
 		doer.SoundEmitter:KillSound("wormhole_travel")
 		doer.SoundEmitter:PlaySound("tunnel/common/travel")
 	end
+
 	self:OnActivate(self.target, doer)
-	
 	self:Teleport(doer)
 
 	if doer.components.leader then
@@ -79,7 +78,7 @@ end
 function schemeteleport:Teleport(obj)
 	if self.target ~= nil then
 		local offset = 2.0
-		local angle = math.random()*360
+		local angle = math.random() * 360
 		local target_x, target_y, target_z = self.target.Transform:GetWorldPosition()
 		target_x = target_x + math.sin(angle)*offset
 		target_z = target_z + math.cos(angle)*offset
@@ -91,11 +90,14 @@ function schemeteleport:Teleport(obj)
 	end
 end
 
-
-function schemeteleport:Target(otherschemeteleport)
-	self.target = otherschemeteleport
-	self.islinked = true
+function schemeteleport:Target(target)
+	self.target = target
 	self.inst.islinked:set(true)
+end
+
+function schemeteleport:Disconnect(target)
+	self.target = nil
+	self.inst.islinked:set(false)
 end
 
 return schemeteleport

@@ -20,15 +20,14 @@ server_filter_tags = {
 
 configuration_options = {
 	{
-		name = "",
-		label = "",
+		name = "type",
+		label = "Spawning Type",
 		options =
 		{
-			{ description = "", data = "default" },
-			{ description = "", data = "" },
-			{ description = "", data = "" },
+			{ description = "buildable", data = "build" },
+			{ description = "spawnable", data = "spawn" },
 		},
-		default = "default",
+		default = "spawn",
 	},
 
 }
