@@ -19,3 +19,10 @@ AddMinimapAtlas("images/map_icons/minimap_tunnel.xml")
 AddMinimapAtlas("images/map_icons/scheme.xml")
 
 ------ Function ------
+
+function AddSchemeManager(inst) -- Add GLOBAL Components
+	inst:AddComponent("scheme_manager")
+end
+
+AddPrefabPostInit("cave", AddSchemeManager)
+AddPrefabPostInit("forest", AddSchemeManager)

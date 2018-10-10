@@ -5,12 +5,12 @@ local assets =
 
 local function onpreload(inst, data)
 	if data then
-		inst.components.scheme_manager.data = data.index or {}
+		inst.components.scheme_manager.record = data.index or {}
 	end
 end
 
 local function onsave(inst, data)
-	data.index = inst.components.scheme_manager.data
+	data.index = inst.components.scheme_manager.record
 end
 
 local function onerased(inst, doer)
@@ -65,12 +65,12 @@ local function fn()
 	inst:AddComponent("playerprox")
 	inst.components.playerprox:SetDist(5,5)
 	inst.components.playerprox.onnear = function()
-		if inst.components.schemeteleport.target and not (inst.sg.currentstate.name == "open" or "opening") then
+		if inst.components.schemeteleport.target and not (inst.sg.currentstate.name == ("open" or "opening")) then
 			inst.sg:GoToState("opening")
 		end
 	end
 	inst.components.playerprox.onfar = function()
-		if inst.sg.currentstate.name == "open" or "opening" then
+		if inst.sg.currentstate.name == ("open" or "opening") then
 			inst.sg:GoToState("closing")
 		end
 	end
