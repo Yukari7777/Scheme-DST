@@ -5,12 +5,12 @@ local assets =
 
 local function onpreload(inst, data)
 	if data then
-		inst.components.scheme_manager.record = data.index or {}
+		inst.components.scheme_manager.data = data.index or {}
 	end
 end
 
 local function onsave(inst, data)
-	data.index = inst.components.scheme_manager.record
+	data.index = inst.components.scheme_manager.data
 end
 
 local function onerased(inst, doer)
