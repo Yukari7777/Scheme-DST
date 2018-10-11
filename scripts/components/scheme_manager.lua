@@ -20,6 +20,12 @@ local _pairnum = 0
 --[[ Private member functions ]]
 --------------------------------------------------------------------------
 
+local function CreateRecord(inst, index)
+	_record[index] = {
+        inst = inst,
+    }
+end
+
 local function AddRecord(inst, index)
 	if index ~= nil then -- force index record
 		table.insert(_record[index], inst) -- delete previous indexed tunnel
@@ -38,7 +44,8 @@ local function GetInstElement(index)
 end
 
 local function Disconnect(index)
-	
+	_record[index] = nil
+	_index = index
 end
 
 function scheme_manager:Disconnect(index)
@@ -92,5 +99,11 @@ function scheme_manager:InitGate(inst)
 	self:AddIndex(inst)
 	self:TryConnect()
 end
+
+--------------------------------------------------------------------------
+--[[ Initialization ]]
+--------------------------------------------------------------------------
+
+
 
 end)
