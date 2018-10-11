@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 --------------------------------------------------------------------------
 --[[ Class definition ]]
 --------------------------------------------------------------------------
@@ -36,9 +37,29 @@ local function AddRecord(inst, force, owner)
 			inst = inst,
 			owner = owner,
 		}
-	end
-end
+=======
+require "prefabs/tunnel"
 
+local scheme_manager = Class(function(self, inst)
+    self.inst = inst
+	self.isb = false
+	self.islinked = false
+	self.gate_a = nil
+	self.gate_b = nil
+end)
+
+
+function scheme_manager:InitGate(inst)
+
+	self = TheWorld.components.scheme_manager
+	
+	local function SchemeConnect()
+		self.gate_a.components.schemeteleport:Target(self.gate_b)
+		self.gate_b.components.schemeteleport:Target(self.gate_a)
+>>>>>>> parent of a9acc22... 0930
+	end
+
+<<<<<<< HEAD
 local function GetInstElement(index)
 	return _record[index]
 end
@@ -83,15 +104,32 @@ function scheme_manager:TryConnect()
 		if self.record[i] ~= nil and self.record[i + 1] ~= nil then
 			self.record[i].components.schemeteleport:Target(self.record[i + 1])
 			self.record[i + 1].components.schemeteleport:Target(self.record[i])
+=======
+	if self.islinked then
+		if self.isb == false then
+			self.gate_a:Remove()
+			self.gate_a = inst
+			self.isb = true
+			SchemeConnect()
+		else
+			self.gate_b:Remove()
+			self.gate_b = inst
+			self.isb = false
+			SchemeConnect()
+>>>>>>> parent of a9acc22... 0930
 		end
-		numpairs = numpairs + 1
+	else
+		if self.isb == false then
+			self.gate_a = inst
+			self.isb = true
+		else
+			self.gate_b = inst
+			self.isb = false
+			self.islinked = true
+			SchemeConnect()
+		end	
 	end
-	self.pairnum = numpairs
-end
-
-function scheme_manager:InitGate(inst)
-	self:AddIndex(inst)
-	self:TryConnect()
+	
 end
 
 --------------------------------------------------------------------------
