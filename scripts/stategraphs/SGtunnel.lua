@@ -37,7 +37,6 @@ local states=
                 inst.AnimState:PlayAnimation("open", true)
             end
 			
-			
 		end,
 	},
 

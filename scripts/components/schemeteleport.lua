@@ -95,9 +95,42 @@ function schemeteleport:Target(target)
 	self.inst.islinked:set(true)
 end
 
-function schemeteleport:Disconnect(target)
-	self.target = nil
-	self.inst.islinked:set(false)
+function schemeteleport:Disconnect(index)
+	GLOBAL.PAIRNUM = GLOBAL.PAIRNUM - 1
+	GLOBAL.TUNNELINDEX = index
+end
+
+function schemeteleport:GetIndex(inst)
+	return self.index
+end
+
+function schemeteleport:AddIndex(inst, index)
+	if index ~= nil then -- force data number
+		self.data[index] = inst
+	else
+		local i = 1
+		while self.data[i] ~= nil do
+			i = i + 1
+		end
+		print("self.index = ", i)
+		self.index = i
+	end
+end
+
+function schemeteleport:TryConnect()
+	local numpairs = 0
+	for i = 1, #self.data, 2 do
+		if self.data[i] ~= nil and self.data[i + 1] ~= nil then
+			self.data[i].components.schemeteleport:Target(self.data[i + 1])
+			self.data[i + 1].components.schemeteleport:Target(self.data[i])
+		end
+		numpairs = numpairs + 1
+	end
+	self.pairnum = numpairs
+end
+
+function schemeteleport:InitGate(inst)
+	self:AddIndex(inst)
 end
 
 return schemeteleport
