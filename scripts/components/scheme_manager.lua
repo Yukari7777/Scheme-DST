@@ -20,22 +20,22 @@ local _pairnum = 0
 --[[ Private member functions ]]
 --------------------------------------------------------------------------
 
-local function CreateRecord(inst, index)
-	_record[index] = {
-        inst = inst,
-    }
-end
-
-local function AddRecord(inst, index)
-	if index ~= nil then -- force index record
-		table.insert(_record[index], inst) -- delete previous indexed tunnel
+local function AddRecord(inst, force, owner)
+	if force ~= nil then -- force index
+		_record[force] = {
+			inst = inst,
+			owner = owner,
+		}
 	else
 		local i = 1
 		while _record[i] ~= nil do
 			i = i + 1
 		end
 		_index = i
-		table.insert(_record[i], MakeRecord(inst))
+		_record[i] = {
+			inst = inst,
+			owner = owner,
+		}
 	end
 end
 
@@ -46,13 +46,7 @@ end
 local function Disconnect(index)
 	_record[index] = nil
 	_index = index
-end
-
-function scheme_manager:Disconnect(index)
-	self.inst.components.schemeteleport:Disconnect()
-	self.record[index] = nil
-	self.pairnum = self.pairnum - 1
-	self.index = index
+	_pairnum = _pairnum - 1
 end
 
 function scheme_manager:GetIndex(inst)

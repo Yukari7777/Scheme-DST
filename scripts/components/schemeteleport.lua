@@ -95,9 +95,4 @@ function schemeteleport:Target(target)
 	self.inst.islinked:set(true)
 end
 
-function schemeteleport:Disconnect(target)
-	self.target = nil
-	self.inst.islinked:set(false)
-end
-
 return schemeteleport
