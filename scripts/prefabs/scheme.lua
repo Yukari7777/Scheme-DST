@@ -2,6 +2,9 @@ local assets=
 {   
 	Asset("ANIM", "anim/spell.zip"),    
 	Asset("ATLAS", "images/inventoryimages/scheme.xml"),    
+
+	Asset("ANIM", "anim/staffs.zip"),
+    Asset("ANIM", "anim/swap_staffs.zip"),
 }
 
 local function OnFinish(inst, owner)
@@ -16,6 +19,17 @@ local function SetState(inst, data)
 	local condition = GetCanpell(data.owner)
 	inst.components.spellcard:SetCondition(condition)
 	inst.canspell:set(condition)
+end
+
+local function onequip(inst, owner)
+	owner.AnimState:OverrideSymbol("swap_object", "swap_staffs", "swap_purplestaff")
+    owner.AnimState:Show("ARM_carry")
+    owner.AnimState:Hide("ARM_normal")
+end
+
+local function onunequip(inst, owner)
+    owner.AnimState:Hide("ARM_carry")
+    owner.AnimState:Show("ARM_normal")
 end
 
 local function fn()  
@@ -36,6 +50,7 @@ local function fn()
 	inst.AnimState:PlayAnimation("idle")    
 
 	inst:AddTag("scheme")
+	inst:AddTag("castontargets")
 	inst.canspell = net_bool(inst.GUID, "canspell")
 
 	inst.entity:SetPristine()
@@ -44,19 +59,17 @@ local function fn()
 		return inst
     end
 
+	inst:AddComponent("makegate")
+
 	inst:AddComponent("inspectable")    
 	inst.components.inspectable.getspecialdescription = GetDesc
 	
 	inst:AddComponent("inventoryitem")   
 	inst.components.inventoryitem.atlasname = "images/inventoryimages/scheme.xml" 
-	
-	inst:AddComponent("spellcard")
-	inst.components.spellcard.name = "scheme"
-	inst.components.spellcard:SetSpellFn( DoUpgrade )
-	inst.components.spellcard:SetOnFinish( OnFinish )
-	inst.components.spellcard:SetCondition( false )
-	
-	inst:ListenForEvent("onitemupdate", SetState)
+
+	inst:AddComponent("equippable")  
+	inst.components.equippable:SetOnEquip( onequip )    
+	inst.components.equippable:SetOnUnequip( onunequip )
 	
 	return inst
 end

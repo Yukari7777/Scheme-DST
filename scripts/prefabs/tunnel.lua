@@ -15,7 +15,6 @@ end
 
 local function onremoved(inst, doer)
 	inst.components.scheme:Disconnect(inst.tindex)
-    inst:Remove()
 end
 
 local function GetDesc(inst, viewer)

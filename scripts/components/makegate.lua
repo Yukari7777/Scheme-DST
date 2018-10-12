@@ -11,11 +11,7 @@ function MakeGate:SpawnEffect(inst)
 end
 
 function MakeGate:CanSpell(caster)
-	if caster.components.power and caster.components.power:GetCurrent() >= cost then
-		if self.onusefn == nil then
-			return false
-		end
-	else
+	if not (caster.components.sanity and caster.components.sanity:GetCurrent() >= TUNING.SANITY_MEDLARGE) then
 		return false
 	end
 
@@ -32,14 +28,30 @@ function MakeGate:Create(pt, caster)
 		if caster.components.health then
 			caster.components.health:SetInvincible(false)
 		end
+		if caster ~= nil then
+			caster.SoundEmitter:PlaySound("dontstarve/common/staff_dissassemble")
+
+			if caster.components.sanity ~= nil then
+				caster.components.sanity:DoDelta(-TUNING.SANITY_MEDLARGE)
+			end
+		end
 		local scheme = SpawnPrefab("tunnel")
 		scheme.Transform:SetPosition(pt.x, pt.y, pt.z)
-		TheWorld.components.scheme_manager:InitGate(scheme)
 	end)
 	
-	self.onusefn(self.inst, pt, caster)
-	
 	return true
+end
+
+function MakeGate:Erase(target, caster)
+	if caster ~= nil then
+        caster.SoundEmitter:PlaySound("dontstarve/common/staff_dissassemble")
+		
+        if caster.components.sanity ~= nil then
+            caster.components.sanity:DoDelta(-TUNING.SANITY_MEDLARGE)
+        end
+    end
+
+	target:Remove()
 end
 
 return MakeGate

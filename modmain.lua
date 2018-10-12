@@ -1,6 +1,6 @@
 PrefabFiles = {
 	"tunnel",
-	--"scheme",
+	"scheme",
 }
 
 Assets = {
@@ -21,3 +21,4 @@ AddMinimapAtlas("images/map_icons/scheme.xml")
 ------ Function ------
 
 --AddReplicableComponent("taggable")
+modimport "scripts/actions_scheme.lua"

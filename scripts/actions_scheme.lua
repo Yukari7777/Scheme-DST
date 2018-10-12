@@ -19,9 +19,8 @@ local SPAWNG = AddAction("SPAWNG", "Spawn Scheme Tunnel", function(act)
 end)
 
 SPAWNG.priority = 7
-SPAWNG.distance = 6
+SPAWNG.distance = 2
 SPAWNG.rmb = true
-SPAWNG.mount_valid = false
 
 local spawng = State({
     name = "spawng",
@@ -84,16 +83,92 @@ AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.SPAWNG, "spawn
 
 local function action_umbre(inst, doer, pos, actions, right)
 	if right then
-		if doer:HasTag("yakumoyukari") and doer.replica.power then
-			if inst.isunfolded:value() and doer.replica.power:GetCurrent() >= TUNING.YDEFAULT.SPAWNG_POWER_COST then
-				table.insert(actions, ACTIONS.SPAWNG)
-			elseif not inst.isunfolded:value() and doer.replica.power:GetCurrent() >= TUNING.YDEFAULT.TELEPORT_POWER_COST then
-				table.insert(actions, ACTIONS.UTELE)
-			end
+		table.insert(actions, ACTIONS.SPAWNG)
+	end
+end
+
+local ERASEG = AddAction("ERASEG", "Delete Scheme Tunnel", function(act)
+	local staff = act.invobject or act.doer.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+	if staff and staff.components.makegate then
+		return staff.components.makegate:Erase(act.target, act.doer)
+	end
+end)
+
+ERASEG.priority = 8
+ERASEG.distance = 2
+
+local eraseg = State({
+    name = "eraseg",
+    tags = {"doing", "busy", "canrotate"},
+
+    onenter = function(inst)
+		inst.components.locomotor:Stop()
+        inst.AnimState:PlayAnimation("atk_pre")
+        inst.AnimState:PushAnimation("atk", false)
+        inst.SoundEmitter:PlaySound("dontstarve/wilson/attack_weapon")
+    end,
+
+    timeline = 
+    {
+        TimeEvent(15*FRAMES, function(inst) inst:PerformBufferedAction() end),
+    },
+
+    events = {
+        EventHandler("animqueueover", function(inst)
+            if inst.AnimState:AnimDone() then
+                inst.sg:GoToState("idle")
+            end
+        end),
+    },
+})
+
+local erasec = State({
+	name = "erasec",
+    tags = { "doing", "busy", "canrotate" },
+
+    onenter = function(inst)
+        inst.components.locomotor:Stop()
+        inst.AnimState:PlayAnimation("staff_pre")
+        inst.AnimState:PushAnimation("staff_lag", false)
+
+        inst:PerformPreviewBufferedAction()
+        inst.sg:SetTimeout(TIMEOUT)
+    end,
+
+    onupdate = function(inst)
+        if inst:HasTag("doing") then
+            if inst.entity:FlattenMovementPrediction() then
+                inst.sg:GoToState("idle", "noanim")
+            end
+        elseif inst.bufferedaction == nil then
+            inst.sg:GoToState("idle")
+        end
+    end,
+
+    ontimeout = function(inst)
+        inst:ClearBufferedAction()
+        inst.sg:GoToState("idle")
+    end,
+})
+	
+AddStategraphState("wilson", eraseg)
+AddStategraphState("wilson_client", erasec)
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.ERASEG, "eraseg"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.ERASEG, "erasec"))
+
+local function kill_scheme(inst, doer, target, actions, right)
+	if right then
+		if target:HasTag("tunnel") then
+			table.insert(actions, ACTIONS.ERASEG)
+		end
+	else
+		if target:HasTag("tunnel") then
+			--table.insert(actions, ACTIONS.INDEXG)
 		end
 	end
 end
 
+AddComponentAction("EQUIPPED", "makegate", kill_scheme)
 AddComponentAction("POINT", "makegate", action_umbre)
 
 ACTIONS.JUMPIN.fn = function(act)

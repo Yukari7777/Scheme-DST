@@ -91,7 +91,7 @@ function scheme:Teleport(obj)
 	end
 end
 
-function scheme:IsLinked()
+function scheme:IsConnected()
 	return self.target ~= nil
 end
 
