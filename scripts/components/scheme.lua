@@ -1,13 +1,14 @@
-local schemeteleport = Class(function(self, inst)
+local scheme = Class(function(self, inst)
     self.inst = inst
+	self.index = nil
 	self.target = nil
 end)
 
-function schemeteleport:OnActivate(other, doer) 
+function scheme:OnActivate(other, doer) 
 	other.sg:GoToState("open")
 end
 
-function schemeteleport:Activate(doer)
+function scheme:Activate(doer)
 	if self.target == nil then
 		return
 	end
@@ -75,7 +76,7 @@ function schemeteleport:Activate(doer)
 	end
 end
 
-function schemeteleport:Teleport(obj)
+function scheme:Teleport(obj)
 	if self.target ~= nil then
 		local offset = 2.0
 		local angle = math.random() * 360
@@ -90,47 +91,58 @@ function schemeteleport:Teleport(obj)
 	end
 end
 
-function schemeteleport:Target(target)
+function scheme:IsLinked()
+	return self.target ~= nil
+end
+
+function scheme:FindIndex()
+	local index = 1
+	while _G.TUNNELNETWORK[index] ~= nil do
+		index = index + 1
+	end
+	return index
+end
+
+function scheme:GetIndex()
+	return self.index
+end
+
+function scheme:Target(target)
 	self.target = target
 	self.inst.islinked:set(true)
 end
 
-function schemeteleport:Disconnect(index)
-	GLOBAL.PAIRNUM = GLOBAL.PAIRNUM - 1
-	GLOBAL.TUNNELINDEX = index
+function scheme:AddToNetwork(inst)
+	local index = inst.tindex == nil and inst.tindex or self:FindIndex()
+
+	_G.TUNNELNETWORK[index] = {
+		inst = inst,
+		owner = inst.owner,
+	}
+	self.index = index
+	print("index = ", index)
 end
 
-function schemeteleport:GetIndex(inst)
-	return self.index
+function scheme:Disconnect(index)
+	self.target = nil
+	self.index = nil
+	_G.TUNNELNETWORK[index] = nil
 end
 
-function schemeteleport:AddIndex(inst, index)
-	if index ~= nil then -- force data number
-		self.data[index] = inst
-	else
-		local i = 1
-		while self.data[i] ~= nil do
-			i = i + 1
-		end
-		print("self.index = ", i)
-		self.index = i
-	end
-end
-
-function schemeteleport:TryConnect()
+function scheme:TryConnect()
 	local numpairs = 0
 	for i = 1, #self.data, 2 do
 		if self.data[i] ~= nil and self.data[i + 1] ~= nil then
-			self.data[i].components.schemeteleport:Target(self.data[i + 1])
-			self.data[i + 1].components.schemeteleport:Target(self.data[i])
+			self.data[i].components.scheme:Target(self.data[i + 1])
+			self.data[i + 1].components.scheme:Target(self.data[i])
 		end
 		numpairs = numpairs + 1
 	end
 	self.pairnum = numpairs
 end
 
-function schemeteleport:InitGate(inst)
-	self:AddIndex(inst)
+function scheme:InitGate(inst)
+	self:AddToNetwork(inst)
 end
 
-return schemeteleport
+return scheme

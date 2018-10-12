@@ -7,13 +7,13 @@ local Taggable = Class(function(self, inst)
     self.opentask = nil
 
     if TheWorld.ismastersim then
-        self.classified = SpawnPrefab("writeable_classified")
+        self.classified = SpawnPrefab("taggable_classified")
         self.classified.entity:SetParent(inst.entity)
     else
-        if self.classified == nil and inst.writeable_classified ~= nil then
-            self.classified = inst.writeable_classified
-            inst.writeable_classified.OnRemoveEntity = nil
-            inst.writeable_classified = nil
+        if self.classified == nil and inst.taggable_classified ~= nil then
+            self.classified = inst.taggable_classified
+            inst.taggable_classified.OnRemoveEntity = nil
+            inst.taggable_classified = nil
             self:AttachClassified(self.classified)
         end
     end
@@ -65,12 +65,12 @@ end
 --------------------------------------------------------------------------
 
 function Taggable:BeginWriting(doer)
-    if self.inst.components.writeable ~= nil then
+    if self.inst.components.taggable ~= nil then
         if self.opentask ~= nil then
             self.opentask:Cancel()
             self.opentask = nil
         end
-        self.inst.components.writeable:BeginWriting(doer)
+        self.inst.components.taggable:BeginWriting(doer)
     elseif self.classified ~= nil
         and self.opentask == nil
         and doer ~= nil
@@ -87,8 +87,8 @@ end
 function Taggable:Write(doer, text)
     --NOTE: text may be network data, so enforcing length is
     --      NOT redundant in order for rendering to be safe.
-    if self.inst.components.writeable ~= nil then
-        self.inst.components.writeable:Write(doer, text)
+    if self.inst.components.taggable ~= nil then
+        self.inst.components.taggable:Write(doer, text)
     elseif self.classified ~= nil and doer == ThePlayer
         and (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH) then
         SendRPCToServer(RPC.SetTaggableText, self.inst, text)
@@ -100,8 +100,8 @@ function Taggable:EndWriting()
         self.opentask:Cancel()
         self.opentask = nil
     end
-    if self.inst.components.writeable ~= nil then
-        self.inst.components.writeable:EndWriting()
+    if self.inst.components.taggable ~= nil then
+        self.inst.components.taggable:EndWriting()
     elseif self.screen ~= nil then
         if ThePlayer ~= nil and ThePlayer.HUD ~= nil then
             ThePlayer.HUD:CloseTaggableWidget()
@@ -115,8 +115,8 @@ end
 
 function Taggable:SetWriter(writer)
     self.classified.Network:SetClassifiedTarget(writer or self.inst)
-    if self.inst.components.writeable == nil then
-        --Should only reach here during writeable construction
+    if self.inst.components.taggable == nil then
+        --Should only reach here during taggable construction
         assert(writer == nil)
     end
 end

@@ -5,24 +5,22 @@ local assets =
 
 local function onpreload(inst, data)
 	if data then
-		inst.components.scheme_manager.data = data.index or {}
+		inst.tindex = data.index or nil
 	end
 end
 
 local function onsave(inst, data)
-	data.index = inst.components.scheme_manager.data
+	data.index = inst.tindex
 end
 
-local function onerased(inst, doer)
-	if inst.components.lootdropper then
-		inst.components.lootdropper:DropLoot()
-	end
-	inst.components.scheme_manager:Disconnect(inst.index)
+local function onremoved(inst, doer)
+	inst.components.scheme:Disconnect(inst.tindex)
     inst:Remove()
 end
 
 local function GetDesc(inst, viewer)
-	return string.format( "Index is "..inst.index.." pair number is #"..(math.floor(inst.index / 2) + 1) )
+	local index = inst.tindex
+	return string.format( "Index is "..index )
 end
 
 local function onaccept(inst, giver, item)
@@ -64,14 +62,14 @@ local function fn()
     inst:AddComponent("inspectable")
 	inst.components.inspectable.getspecialdescription = GetDesc
 
-	inst:AddComponent("schemeteleport")
-	inst.components.scheme_manager:InitGate(inst)
-	inst.index = inst.components.schemeteleport:GetIndex(inst)
+	inst:AddComponent("scheme")
+	inst.components.scheme:InitGate(inst)
+	inst.tindex = inst.components.scheme:GetIndex()
 
 	inst:AddComponent("playerprox")
 	inst.components.playerprox:SetDist(5,5)
 	inst.components.playerprox.onnear = function()
-		if inst.components.schemeteleport.target and not (inst.sg.currentstate.name == ("open" or "opening")) then
+		if inst.components.scheme.target and not (inst.sg.currentstate.name == ("open" or "opening")) then
 			inst.sg:GoToState("opening")
 		end
 	end
@@ -80,20 +78,17 @@ local function fn()
 			inst.sg:GoToState("closing")
 		end
 	end
-	
-	inst:AddComponent("workable")
-    inst.components.workable:SetWorkAction(ACTIONS.HAMMER) -- scheme as a breaker
-    inst.components.workable:SetWorkLeft(20)
-    inst.components.workable:SetOnFinishCallback(onerased)
 
-	inst:AddComponent("trader")
-    inst.components.trader.acceptnontradable = true
-    inst.components.trader.onaccept = onaccept
-    inst.components.trader.deleteitemonaccept = false
+	--inst:AddComponent("taggable")
 
-	
+	--inst:AddComponent("trader")
+    --inst.components.trader.acceptnontradable = true
+    --inst.components.trader.onaccept = onaccept
+    --inst.components.trader.deleteitemonaccept = false
+
 	inst.OnSave = onsave
 	inst.OnPreLoad = onpreload
+	inst.OnRemoveEntity = onremoved
 
     return inst
 end
