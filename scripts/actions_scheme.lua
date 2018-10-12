@@ -87,6 +87,7 @@ local function action_umbre(inst, doer, pos, actions, right)
 	end
 end
 
+
 local ERASEG = AddAction("ERASEG", "Delete Scheme Tunnel", function(act)
 	local staff = act.invobject or act.doer.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
 	if staff and staff.components.makegate then
@@ -96,6 +97,16 @@ end)
 
 ERASEG.priority = 8
 ERASEG.distance = 2
+
+local INDEXG = AddAction("INDEXG", "Change Destination", function(act)
+	local staff = act.invobject or act.doer.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+	if staff and staff.components.makegate then
+		return staff.components.makegate:Index(act.target, act.doer)
+	end
+end)
+
+INDEXG.priority = 8
+INDEXG.distance = 1
 
 local eraseg = State({
     name = "eraseg",
@@ -154,7 +165,9 @@ local erasec = State({
 AddStategraphState("wilson", eraseg)
 AddStategraphState("wilson_client", erasec)
 AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.ERASEG, "eraseg"))
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.INDEXG, "doshortaction"))
 AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.ERASEG, "erasec"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.INDEXG, "doshortaction"))
 
 local function kill_scheme(inst, doer, target, actions, right)
 	if right then
@@ -163,13 +176,14 @@ local function kill_scheme(inst, doer, target, actions, right)
 		end
 	else
 		if target:HasTag("tunnel") then
-			--table.insert(actions, ACTIONS.INDEXG)
+			table.insert(actions, ACTIONS.INDEXG)
 		end
 	end
 end
 
 AddComponentAction("EQUIPPED", "makegate", kill_scheme)
 AddComponentAction("POINT", "makegate", action_umbre)
+
 
 ACTIONS.JUMPIN.fn = function(act)
 	if act.doer ~= nil and
@@ -178,12 +192,12 @@ ACTIONS.JUMPIN.fn = function(act)
         if act.target ~= nil and act.target.components.teleporter ~= nil and act.target.components.teleporter:IsActive() then
             act.doer.sg:GoToState("jumpin", { teleporter = act.target })
             return true
-		elseif act.target ~= nil and act.target.components.schemeteleport ~= nil and act.target.components.schemeteleport.islinked then
+		elseif act.target ~= nil and act.target.components.scheme ~= nil and act.target.components.scheme:IsConnected() then
 			act.doer.sg:GoToState("jumpin", { teleporter = act.target })
 			act.doer:DoTaskInTime(0.8, function()
-				act.target.components.schemeteleport:Activate(act.doer)
+				act.target.components.scheme:Activate(act.doer)
 			end)
-			act.doer:DoTaskInTime(1.5, function()
+			act.doer:DoTaskInTime(1.5, function() -- Move entities outside of border inside
 				if not act.doer:IsOnValidGround() then
 					local dest = GLOBAL.FindNearbyLand(act.doer:GetPosition(), 8)
 					if dest ~= nil then
@@ -206,4 +220,4 @@ local function tunnelfn(inst, doer, actions, right)
 		table.insert(actions, ACTIONS.JUMPIN)
     end
 end
-AddComponentAction("SCENE", "schemeteleport", tunnelfn)
+AddComponentAction("SCENE", "scheme", tunnelfn)

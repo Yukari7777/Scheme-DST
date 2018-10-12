@@ -12,7 +12,7 @@ local function OnFinish(inst, owner)
 end
 
 local function GetDesc(inst, viewer)
-	return string.format(  )
+	return string.format("ha, ha, ha.")
 end
 
 local function SetState(inst, data)

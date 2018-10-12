@@ -5,7 +5,9 @@ local assets =
 
 local function onpreload(inst, data)
 	if data then
-		inst.tindex = data.index or nil
+		if data.index then
+			inst.tindex = data.index 
+		end
 	end
 end
 
@@ -28,7 +30,6 @@ local function onaccept(inst, giver, item)
 end
 
 local function fn()
-
 	local inst = CreateEntity()    
 	
 	inst.entity:AddTransform()    
@@ -63,10 +64,9 @@ local function fn()
 
 	inst:AddComponent("scheme")
 	inst.components.scheme:InitGate(inst)
-	inst.tindex = inst.components.scheme:GetIndex()
 
 	inst:AddComponent("playerprox")
-	inst.components.playerprox:SetDist(5,5)
+	inst.components.playerprox:SetDist(3,3)
 	inst.components.playerprox.onnear = function()
 		if inst.components.scheme.target and not (inst.sg.currentstate.name == ("open" or "opening")) then
 			inst.sg:GoToState("opening")

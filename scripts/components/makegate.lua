@@ -52,6 +52,14 @@ function MakeGate:Erase(target, caster)
     end
 
 	target:Remove()
+	return true
+end
+
+function MakeGate:Index(target, caster)
+	target.components.scheme:Connect()
+	-- say destination's tag
+
+	return true
 end
 
 return MakeGate

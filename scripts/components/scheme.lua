@@ -2,6 +2,7 @@ local scheme = Class(function(self, inst)
     self.inst = inst
 	self.index = nil
 	self.target = nil
+	self.pointer = nil
 end)
 
 function scheme:OnActivate(other, doer) 
@@ -100,6 +101,7 @@ function scheme:FindIndex()
 	while _G.TUNNELNETWORK[index] ~= nil do
 		index = index + 1
 	end
+	print("findindex", index)
 	return index
 end
 
@@ -109,36 +111,45 @@ end
 
 function scheme:Target(target)
 	self.target = target
+	self.pointer = target.tindex
 	self.inst.islinked:set(true)
+	self.inst.sg:GoToState("opening")
 end
 
 function scheme:AddToNetwork(inst)
-	local index = inst.tindex == nil and inst.tindex or self:FindIndex()
+	local index = inst.tindex ~= nil and inst.tindex or self:FindIndex()
 
 	_G.TUNNELNETWORK[index] = {
 		inst = inst,
 		owner = inst.owner,
 	}
 	self.index = index
-	print("index = ", index)
+	self.inst.tindex = index
 end
 
 function scheme:Disconnect(index)
-	self.target = nil
+	for k, v in pairs(_G.TUNNELNETWORK) do
+		if v.inst.components.scheme and v.inst.components.scheme.pointer == index then
+			v.inst.components.scheme.target = nil
+			v.inst.components.scheme.pointer = nil
+			v.inst.islinked:set(false)
+			v.inst.sg:GoToState("closing")
+		end
+	end
 	self.index = nil
+	self.target = nil
+	self.pointer = nil
+	self.inst.islinked:set(false)
+	self.inst.sg:GoToState("closing")
 	_G.TUNNELNETWORK[index] = nil
 end
 
-function scheme:TryConnect()
-	local numpairs = 0
-	for i = 1, #self.data, 2 do
-		if self.data[i] ~= nil and self.data[i + 1] ~= nil then
-			self.data[i].components.scheme:Target(self.data[i + 1])
-			self.data[i + 1].components.scheme:Target(self.data[i])
-		end
-		numpairs = numpairs + 1
-	end
-	self.pairnum = numpairs
+function scheme:Connect()
+	local pointer = next(_G.TUNNELNETWORK, self.pointer)
+	if pointer == self.inst.tindex then next(_G.TUNNELNETWORK, self.pointer) end
+	if pointer == nil then pointer = 1 end
+
+	self:Target(_G.TUNNELNETWORK[pointer].inst)
 end
 
 function scheme:InitGate(inst)
