@@ -57,6 +57,7 @@ end
 
 function MakeGate:Index(target, caster)
 	target.components.scheme:Connect()
+	target.sg:GoToState("opening")
 	-- say destination's tag
 
 	return true

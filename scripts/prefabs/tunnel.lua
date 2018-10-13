@@ -3,25 +3,16 @@ local assets =
 	Asset("ANIM", "anim/tunnel.zip" ),
 }
 
-local function onpreload(inst, data)
-	if data then
-		if data.index then
-			inst.tindex = data.index 
-		end
+local function onremoved(inst, doer)
+	if inst.components.scheme ~= nil then
+		inst.components.scheme:Disconnect(inst.components.scheme.index)
 	end
 end
 
-local function onsave(inst, data)
-	data.index = inst.tindex
-end
-
-local function onremoved(inst, doer)
-	inst.components.scheme:Disconnect(inst.tindex)
-end
-
 local function GetDesc(inst, viewer)
-	local index = inst.tindex
-	return string.format( "Index is "..index )
+	local index = inst.components.scheme.index
+	local pointer = inst.components.scheme.pointer or "none"
+	return string.format( "Index is "..index.." and is connected to "..pointer )
 end
 
 local function onaccept(inst, giver, item)
@@ -63,12 +54,12 @@ local function fn()
 	inst.components.inspectable.getspecialdescription = GetDesc
 
 	inst:AddComponent("scheme")
-	inst.components.scheme:InitGate(inst)
+	inst.components.scheme:InitGate()
 
 	inst:AddComponent("playerprox")
-	inst.components.playerprox:SetDist(3,3)
+	inst.components.playerprox:SetDist(5,5)
 	inst.components.playerprox.onnear = function()
-		if inst.components.scheme.target and not (inst.sg.currentstate.name == ("open" or "opening")) then
+		if inst.components.scheme:IsConnected() and not (inst.sg.currentstate.name == ("open" or "opening")) then
 			inst.sg:GoToState("opening")
 		end
 	end
@@ -85,8 +76,6 @@ local function fn()
     --inst.components.trader.onaccept = onaccept
     --inst.components.trader.deleteitemonaccept = false
 
-	inst.OnSave = onsave
-	inst.OnPreLoad = onpreload
 	inst.OnRemoveEntity = onremoved
 
     return inst

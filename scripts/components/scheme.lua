@@ -1,7 +1,6 @@
 local scheme = Class(function(self, inst)
     self.inst = inst
 	self.index = nil
-	self.target = nil
 	self.pointer = nil
 end)
 
@@ -10,7 +9,7 @@ function scheme:OnActivate(other, doer)
 end
 
 function scheme:Activate(doer)
-	if self.target == nil then
+	if not self:IsConnected() then
 		return
 	end
 	
@@ -19,7 +18,7 @@ function scheme:Activate(doer)
 		doer.SoundEmitter:PlaySound("tunnel/common/travel")
 	end
 
-	self:OnActivate(self.target, doer)
+	self:OnActivate(self:GetTarget(self.pointer), doer)
 	self:Teleport(doer)
 
 	if doer.components.leader then
@@ -78,10 +77,11 @@ function scheme:Activate(doer)
 end
 
 function scheme:Teleport(obj)
-	if self.target ~= nil then
+	if self.pointer ~= nil then
+		local target = self:GetTarget(self.pointer)
 		local offset = 2.0
 		local angle = math.random() * 360
-		local target_x, target_y, target_z = self.target.Transform:GetWorldPosition()
+		local target_x, target_y, target_z = target.Transform:GetWorldPosition()
 		target_x = target_x + math.sin(angle)*offset
 		target_z = target_z + math.cos(angle)*offset
 		if obj.Physics then
@@ -92,8 +92,27 @@ function scheme:Teleport(obj)
 	end
 end
 
+function scheme:GetTarget(pointer)
+	return _G.TUNNELNETWORK[pointer].inst
+end
+
+function scheme:OnSave()
+	return {
+		index = self.index,
+		pointer = self.pointer,
+	}
+end
+
+function scheme:OnLoad(data)
+	if data ~= nil then
+		self.index = data.index
+		self.pointer = data.pointer
+		self:InitGate(self.inst)
+	end
+end
+
 function scheme:IsConnected()
-	return self.target ~= nil
+	return self.pointer ~= nil and self:GetTarget(self.pointer) ~= nil
 end
 
 function scheme:FindIndex()
@@ -101,7 +120,6 @@ function scheme:FindIndex()
 	while _G.TUNNELNETWORK[index] ~= nil do
 		index = index + 1
 	end
-	print("findindex", index)
 	return index
 end
 
@@ -109,35 +127,30 @@ function scheme:GetIndex()
 	return self.index
 end
 
-function scheme:Target(target)
-	self.target = target
-	self.pointer = target.tindex
+function scheme:Target(pointer)
+	self.pointer = pointer
 	self.inst.islinked:set(true)
-	self.inst.sg:GoToState("opening")
 end
 
-function scheme:AddToNetwork(inst)
-	local index = inst.tindex ~= nil and inst.tindex or self:FindIndex()
+function scheme:AddToNetwork()
+	local index = self.index ~= nil and self.index or self:FindIndex()
 
 	_G.TUNNELNETWORK[index] = {
-		inst = inst,
-		owner = inst.owner,
+		inst = self.inst,
+		owner = self.inst.owner,
 	}
 	self.index = index
-	self.inst.tindex = index
 end
 
 function scheme:Disconnect(index)
 	for k, v in pairs(_G.TUNNELNETWORK) do
 		if v.inst.components.scheme and v.inst.components.scheme.pointer == index then
-			v.inst.components.scheme.target = nil
 			v.inst.components.scheme.pointer = nil
 			v.inst.islinked:set(false)
 			v.inst.sg:GoToState("closing")
 		end
 	end
 	self.index = nil
-	self.target = nil
 	self.pointer = nil
 	self.inst.islinked:set(false)
 	self.inst.sg:GoToState("closing")
@@ -146,14 +159,17 @@ end
 
 function scheme:Connect()
 	local pointer = next(_G.TUNNELNETWORK, self.pointer)
-	if pointer == self.inst.tindex then next(_G.TUNNELNETWORK, self.pointer) end
+	if pointer == self.index then pointer = next(_G.TUNNELNETWORK, pointer) end
 	if pointer == nil then pointer = 1 end
 
-	self:Target(_G.TUNNELNETWORK[pointer].inst)
+	self:Target(pointer)
 end
 
-function scheme:InitGate(inst)
-	self:AddToNetwork(inst)
+function scheme:InitGate()
+	self:AddToNetwork()
+	if self.pointer ~= nil then
+		self:Target(self.pointer)
+	end
 end
 
 return scheme
