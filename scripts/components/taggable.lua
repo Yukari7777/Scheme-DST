@@ -113,7 +113,7 @@ function Taggable:Write(doer, text)
     --NOTE: text may be network data, so enforcing length is
     --      NOT redundant in order for rendering to be safe.
     if self.writer == doer and doer ~= nil and
-        (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH) then -- Mod Author: I don't know how different between Saying-Text and Writable-Text so I conserve this.
+        (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH) then
         if IsRail() then
 			text = TheSim:ApplyWordFilter(text)
 		end

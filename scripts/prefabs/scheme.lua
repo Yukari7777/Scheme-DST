@@ -7,10 +7,6 @@ local assets=
     Asset("ANIM", "anim/swap_staffs.zip"),
 }
 
-local function OnFinish(inst, owner)
-	
-end
-
 local function GetDesc(inst, viewer)
 	return string.format("ha, ha, ha.")
 end

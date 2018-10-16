@@ -1,8 +1,8 @@
 local SignGenerator = require"signgenerator"
 
-local taggables = {}
+local writeables = {}
 
-taggables.makescreen = function(inst, doer) -- todo : make it like tag anim
+writeables.makescreen = function(inst, doer) -- todo : make anim like a tag.
     local data = {
 		prompt = STRINGS.SIGNS.MENU.PROMPT,
 		animbank = "ui_board_5x3",
@@ -23,4 +23,4 @@ taggables.makescreen = function(inst, doer) -- todo : make it like tag anim
     end
 end
 
-return taggables
+return writeables

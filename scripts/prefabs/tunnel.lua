@@ -11,9 +11,16 @@ local function onremoved(inst, doer)
 end
 
 local function GetDesc(inst, viewer)
-	local index = inst.components.scheme.index
-	local pointer = inst.components.scheme.pointer or "none"
-	return string.format( "Index is "..index.." and is connected to "..pointer )
+	local name = inst.components.taggable:GetText() or "#"..inst.components.scheme.index
+	local pointer = inst.components.scheme.pointer
+	local destination = ""
+
+	if pointer ~= nil then
+		local destname = _G.TUNNELNETWORK[pointer].inst.components.taggable:GetText() or "#"..pointer
+		destination = "\nand is connected to "..destname
+	end
+
+	return string.format( "My Name is "..name..destination )
 end
 
 local function onaccept(inst, giver, item)
