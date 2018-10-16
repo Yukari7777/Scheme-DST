@@ -1,4 +1,4 @@
-local writeables = require"writeables"
+local writeables = require"taggables"
 
 local function gettext(inst, viewer)
     local text = inst.components.taggable:GetText()
@@ -6,7 +6,7 @@ local function gettext(inst, viewer)
 end
 
 local function onbuilt(inst, data)
-    inst.components.taggable:BeginWriting(data.builder)
+    inst.components.taggable:BeginWriting(data.spawner)
 end
 
 --V2C: NOTE: do not add "writeable" tag to pristine state because it is more
@@ -42,8 +42,7 @@ local Taggable = Class(function(self, inst)
 
     -- inst.components.inspectable.getspecialdescription = gettext
 
-    self.inst:ListenForEvent("onbuilt", onbuilt)
-    self.inst:ListenForEvent("oncreated", onbuilt) -- on spawned
+    self.inst:ListenForEvent("tag", onbuilt)
 end,
 nil,
 {

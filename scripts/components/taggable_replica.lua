@@ -1,4 +1,4 @@
-local writeables = require"writeables"
+local writeables = require"taggables"
 
 local Taggable = Class(function(self, inst)
     self.inst = inst

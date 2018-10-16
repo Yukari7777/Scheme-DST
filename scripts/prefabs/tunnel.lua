@@ -1,6 +1,7 @@
 local assets =
 {
 	Asset("ANIM", "anim/tunnel.zip" ),
+	Asset("ANIM", "anim/ui_board_5x3.zip"),
 }
 
 local function onremoved(inst, doer)
@@ -69,7 +70,7 @@ local function fn()
 		end
 	end
 
-	--inst:AddComponent("taggable")
+	inst:AddComponent("taggable")
 
 	--inst:AddComponent("trader")
     --inst.components.trader.acceptnontradable = true

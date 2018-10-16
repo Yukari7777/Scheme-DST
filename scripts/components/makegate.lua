@@ -37,6 +37,7 @@ function MakeGate:Create(pt, caster)
 		end
 		local scheme = SpawnPrefab("tunnel")
 		scheme.Transform:SetPosition(pt.x, pt.y, pt.z)
+		scheme:PushEvent("tag", {spawner = caster})
 	end)
 	
 	return true

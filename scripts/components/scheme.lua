@@ -15,7 +15,6 @@ function scheme:Activate(doer)
 	
 	if doer:HasTag("player") then
 		doer.SoundEmitter:KillSound("wormhole_travel")
-		doer.SoundEmitter:PlaySound("tunnel/common/travel")
 	end
 
 	self:OnActivate(self:GetTarget(self.pointer), doer)

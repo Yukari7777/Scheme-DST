@@ -1,6 +1,7 @@
 PrefabFiles = {
 	"tunnel",
 	"scheme",
+	"taggable_classified",
 }
 
 Assets = {
@@ -21,10 +22,14 @@ AddMinimapAtlas("images/map_icons/scheme.xml")
 
 ------ Functions ------
 
---AddReplicableComponent("taggable")
-modimport "scripts/actions_scheme.lua"
+AddReplicableComponent("taggable")
 
------- Strings ------
+------ GLOBAL Strings ------
+
 STRINGS.NAMES.TUNNEL = "Scheme Gate"
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.TUNNEL = "Creepy."
 STRINGS.NAMES.SCHEME = "Scheme"
+
+------ Mod Imports ------
+
+modimport "scripts/actions_scheme.lua"
