@@ -24,6 +24,20 @@ AddMinimapAtlas("images/map_icons/scheme.xml")
 
 AddReplicableComponent("taggable")
 
+SetWriteableText = function(player, target, text)
+	print("SetWriteableText")
+    if not (checkentity(target) and
+            optstring(text)) then
+        printinvalid("SetWriteableText", player)
+        return
+    end
+    local taggable = target.components.taggable
+    if taggable ~= nil then
+        taggable:Write(player, text)
+    end
+end
+AddModRPCHandler("scheme", "write", SetWriteableText)
+
 ------ GLOBAL Strings ------
 
 STRINGS.NAMES.TUNNEL = "Scheme Gate"

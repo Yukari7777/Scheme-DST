@@ -80,6 +80,7 @@ function Taggable:GetText(viewer)
 			return "\1"..self.text.."\1"..self.netid
 		end
 	end
+	print("self.text",self.text)
     return self.text
 end
 
@@ -112,6 +113,7 @@ end
 function Taggable:Write(doer, text)
     --NOTE: text may be network data, so enforcing length is
     --      NOT redundant in order for rendering to be safe.
+	print("taggable:Write")
     if self.writer == doer and doer ~= nil and
         (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH) then
         if IsRail() then
@@ -127,7 +129,7 @@ function Taggable:EndWriting()
         self.inst:StopUpdatingComponent(self)
 
         if self.screen ~= nil then
-            self.writer.HUD:CloseTaggableWidget()
+            self.writer.HUD:CloseWriteableWidget()
             self.screen = nil
         end
 

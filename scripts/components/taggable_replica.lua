@@ -87,11 +87,12 @@ end
 function Taggable:Write(doer, text)
     --NOTE: text may be network data, so enforcing length is
     --      NOT redundant in order for rendering to be safe.
+	print("taggable_replica:Write")
     if self.inst.components.taggable ~= nil then
         self.inst.components.taggable:Write(doer, text)
     elseif self.classified ~= nil and doer == ThePlayer
         and (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH) then
-        SendRPCToServer(RPC.SetTaggableText, self.inst, text)
+        SendModRPCToServer(MOD_RPC["scheme"]["write"], self.inst, text)
     end
 end
 
@@ -104,7 +105,7 @@ function Taggable:EndWriting()
         self.inst.components.taggable:EndWriting()
     elseif self.screen ~= nil then
         if ThePlayer ~= nil and ThePlayer.HUD ~= nil then
-            ThePlayer.HUD:CloseTaggableWidget()
+            ThePlayer.HUD:CloseWriteableWidget()
         elseif self.screen.inst:IsValid() then
             --Should not have screen and no writer, but just in case...
             self.screen:Kill()
