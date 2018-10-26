@@ -1,8 +1,31 @@
 local SignGenerator = require"signgenerator"
+local PlayerHud = require"screens/playerhud"
+local TaggableWidget = require"widgets/taggablewidget"
 
 local writeables = {}
 
-writeables.makescreen = function(inst, doer) -- todo : make anim like a tag.
+function PlayerHud:ShowTaggableWidget(writeable, config)
+    if writeable == nil then
+        return
+    else
+        self.taggablescreen = TaggableWidget(self.owner, writeable, config)
+        self:OpenScreenUnderPause(self.taggablescreen)
+        if TheFrontEnd:GetActiveScreen() == self.taggablescreen then
+            -- Have to set editing AFTER pushscreen finishes.
+            self.taggablescreen.edit_text:SetEditing(true)
+        end
+        return self.taggablescreen
+    end
+end
+
+function PlayerHud:CloseTaggableWidget()
+    if self.taggablescreen then
+        self.taggablescreen:Close()
+        self.taggablescreen = nil
+    end
+end
+
+writeables.makescreen = function(inst, doer) -- todo : make screen like a tag.
     local data = {
 		prompt = STRINGS.SIGNS.MENU.PROMPT,
 		animbank = "ui_board_5x3",
@@ -19,7 +42,7 @@ writeables.makescreen = function(inst, doer) -- todo : make anim like a tag.
 	}
 
     if doer and doer.HUD then
-        return doer.HUD:ShowWriteableWidget(inst, data)
+        return doer.HUD:ShowTaggableWidget(inst, data)
     end
 end
 

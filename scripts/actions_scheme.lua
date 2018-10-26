@@ -81,7 +81,7 @@ AddStategraphState("wilson_client", spawngc)
 AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.SPAWNG, "spawng"))
 AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.SPAWNG, "spawngc"))
 
-local function action_umbre(inst, doer, pos, actions, right)
+local function action_scheme(inst, doer, pos, actions, right)
 	if right then
 		table.insert(actions, ACTIONS.SPAWNG)
 	end
@@ -169,7 +169,7 @@ AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.INDEXG, "doshortactio
 AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.ERASEG, "erasec"))
 AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.INDEXG, "doshortaction"))
 
-local function kill_scheme(inst, doer, target, actions, right)
+local function scheme(inst, doer, target, actions, right)
 	if right then
 		if target:HasTag("tunnel") then
 			table.insert(actions, ACTIONS.ERASEG)
@@ -181,8 +181,8 @@ local function kill_scheme(inst, doer, target, actions, right)
 	end
 end
 
-AddComponentAction("EQUIPPED", "makegate", kill_scheme)
-AddComponentAction("POINT", "makegate", action_umbre)
+AddComponentAction("EQUIPPED", "makegate", scheme)
+AddComponentAction("POINT", "makegate", action_scheme)
 
 
 ACTIONS.JUMPIN.fn = function(act)

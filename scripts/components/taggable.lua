@@ -89,6 +89,7 @@ function Taggable:SetText(text)
 end
 
 function Taggable:BeginWriting(doer)
+	print("Taggable:BeginWriting")
     if self.writer == nil then
         self.inst:StartUpdatingComponent(self)
 
@@ -115,7 +116,7 @@ function Taggable:Write(doer, text)
     --      NOT redundant in order for rendering to be safe.
 	print("taggable:Write")
     if self.writer == doer and doer ~= nil and
-        (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH) then
+        (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH / 4) then
         if IsRail() then
 			text = TheSim:ApplyWordFilter(text)
 		end
@@ -129,7 +130,7 @@ function Taggable:EndWriting()
         self.inst:StopUpdatingComponent(self)
 
         if self.screen ~= nil then
-            self.writer.HUD:CloseWriteableWidget()
+            self.writer.HUD:CloseTaggableWidget()
             self.screen = nil
         end
 
@@ -180,8 +181,7 @@ end
 function Taggable:OnRemoveFromEntity()
     self:EndWriting()
     self.inst:RemoveTag("writeable")
-    self.inst:RemoveEventCallback("onbuilt", onbuilt)
-    self.inst:RemoveEventCallback("oncreated", onbuilt) -- on spawned
+    self.inst:RemoveEventCallback("tag", onbuilt)
 end
 
 Taggable.OnRemoveEntity = Taggable.EndWriting

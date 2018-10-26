@@ -65,6 +65,7 @@ end
 --------------------------------------------------------------------------
 
 function Taggable:BeginWriting(doer)
+	print("Taggable_replica:BeginWriting")
     if self.inst.components.taggable ~= nil then
         if self.opentask ~= nil then
             self.opentask:Cancel()
@@ -91,7 +92,7 @@ function Taggable:Write(doer, text)
     if self.inst.components.taggable ~= nil then
         self.inst.components.taggable:Write(doer, text)
     elseif self.classified ~= nil and doer == ThePlayer
-        and (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH) then
+        and (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH / 4) then
         SendModRPCToServer(MOD_RPC["scheme"]["write"], self.inst, text)
     end
 end

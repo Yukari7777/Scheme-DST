@@ -11,7 +11,7 @@ local function onremoved(inst, doer)
 end
 
 local function GetDesc(inst, viewer)
-	local name = inst.components.taggable:GetText() ~= nil or "#"..inst.components.scheme.index
+	local name = inst.components.taggable:GetText() or "#"..inst.components.scheme.index
 	local pointer = inst.components.scheme.pointer
 	local destination = ""
 
