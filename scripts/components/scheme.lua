@@ -81,6 +81,8 @@ function scheme:Teleport(obj)
 		local offset = 2.0
 		local angle = math.random() * 360
 		local target_x, target_y, target_z = target.Transform:GetWorldPosition()
+		local modname = KnownModIndex:GetModActualName("Scheme")
+		local cost = GetModConfigData("usecost", modname) -- GetModConfigData not within modmain must have a modname argument.
 		target_x = target_x + math.sin(angle)*offset
 		target_z = target_z + math.cos(angle)*offset
 		if obj.Physics then
@@ -88,6 +90,12 @@ function scheme:Teleport(obj)
 		elseif obj.Transform then
 			obj.Transform:SetPosition( target_x, target_y, target_z )
 		end
+		if obj.components.talker ~= nil then
+            obj.components.talker:ShutUp()
+        end
+        if obj.components.sanity ~= nil and cost ~= 0 then
+            obj.components.sanity:DoDelta(-cost)
+        end
 	end
 end
 
@@ -158,6 +166,7 @@ end
 
 function scheme:Connect()
 	local pointer = next(_G.TUNNELNETWORK, self.pointer)
+	if #_G.TUNNELNETWORK == 1 then return end
 	if pointer == self.index then pointer = next(_G.TUNNELNETWORK, pointer) end
 	if pointer == nil then pointer = 1 end
 

@@ -18,16 +18,36 @@ server_filter_tags = {
 	"utilities",
 }
 
+local spawncost = {}
+for i = 0, 200 do spawncost[i + 1] = { description = ""..i.."", data = i } end
+local delcost = {}
+for i = 0, 200 do delcost[i + 1] = { description = ""..i.."", data = i } end
+local usecost = {}
+for i = 0, 200 do usecost[i + 1] = { description = ""..i.."", data = i } end
+
+
 configuration_options = {
 	{
-		name = "type",
-		label = "Spawning Type",
-		options =
-		{
-			{ description = "buildable", data = "build" },
-			{ description = "spawnable", data = "spawn" },
-		},
-		default = "spawn",
+		name = "spawncost",
+		label = "Spawn Cost",
+		hover = "Set sanity cost on creating Scheme Gate.",
+		options = spawncost,
+		default = 30,
 	},
 
+	{
+		name = "delcost",
+		label = "Erase Cost",
+		hover = "Set sanity cost on Removing Scheme Gate.",
+		options = delcost,
+		default = 10,
+	},
+
+	{
+		name = "usecost",
+		label = "Use Cost",
+		hover = "Set sanity cost of using Scheme Gate.",
+		options = usecost,
+		default = 5,
+	},
 }

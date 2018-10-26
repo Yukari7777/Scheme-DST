@@ -9,8 +9,6 @@ local ACTIONS = GLOBAL.ACTIONS
 local Action = GLOBAL.Action
 local TheWorld = GLOBAL.TheWorld
 local TIMEOUT = 2
-local Language = GetModConfigData("language")
-
 
 local SPAWNG = AddAction("SPAWNG", "Spawn Scheme Tunnel", function(act)
 	if act.invobject and act.invobject.components.makegate then

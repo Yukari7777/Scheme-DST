@@ -11,14 +11,12 @@ function MakeGate:SpawnEffect(inst)
 end
 
 function MakeGate:CanSpell(caster)
-	if not (caster.components.sanity and caster.components.sanity:GetCurrent() >= TUNING.SANITY_MEDLARGE) then
-		return false
-	end
-
 	return true
 end
 
 function MakeGate:Create(pt, caster)
+	local modname = KnownModIndex:GetModActualName("Scheme")
+	local SPAWNCOST = GetModConfigData("spawncost", modname)
 
 	caster.SoundEmitter:PlaySound("dontstarve/common/staff_blink")
 	if caster.components.health then
@@ -32,7 +30,7 @@ function MakeGate:Create(pt, caster)
 			caster.SoundEmitter:PlaySound("dontstarve/common/staff_dissassemble")
 
 			if caster.components.sanity ~= nil then
-				caster.components.sanity:DoDelta(-TUNING.SANITY_MEDLARGE)
+				caster.components.sanity:DoDelta(-SPAWNCOST)
 			end
 		end
 		local scheme = SpawnPrefab("tunnel")
@@ -44,11 +42,14 @@ function MakeGate:Create(pt, caster)
 end
 
 function MakeGate:Erase(target, caster)
+	local modname = KnownModIndex:GetModActualName("Scheme")
+	local DELCOST = GetModConfigData("delcost", modname)
+
 	if caster ~= nil then
         caster.SoundEmitter:PlaySound("dontstarve/common/staff_dissassemble")
 		
         if caster.components.sanity ~= nil then
-            caster.components.sanity:DoDelta(-TUNING.SANITY_MEDLARGE)
+            caster.components.sanity:DoDelta(-DELCOST)
         end
     end
 
@@ -58,8 +59,11 @@ end
 
 function MakeGate:Index(target, caster)
 	target.components.scheme:Connect()
+
+	local dest = _G.TUNNELNETWORK[target.components.scheme.pointer].inst.components.taggable:GetText() or "#"..target.components.scheme.pointer
 	target.sg:GoToState("opening")
-	-- say destination's tag
+
+	caster.components.talker:Say("Set to "..dest)
 
 	return true
 end
