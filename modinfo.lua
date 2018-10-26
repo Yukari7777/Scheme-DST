@@ -1,7 +1,7 @@
 name = "Scheme"
 description = "Suspicious, Creepy gaps linking two spaces."
 author = "Yakumo Yukari"
-version = "0.1"
+version = "1.0"
 forumthread = ""
 api_version = 6
 api_version_dst = 10

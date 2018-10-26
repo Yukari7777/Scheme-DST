@@ -65,7 +65,6 @@ end
 --------------------------------------------------------------------------
 
 function Taggable:BeginWriting(doer)
-	print("Taggable_replica:BeginWriting")
     if self.inst.components.taggable ~= nil then
         if self.opentask ~= nil then
             self.opentask:Cancel()
@@ -88,7 +87,6 @@ end
 function Taggable:Write(doer, text)
     --NOTE: text may be network data, so enforcing length is
     --      NOT redundant in order for rendering to be safe.
-	print("taggable_replica:Write")
     if self.inst.components.taggable ~= nil then
         self.inst.components.taggable:Write(doer, text)
     elseif self.classified ~= nil and doer == ThePlayer

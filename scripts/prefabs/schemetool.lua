@@ -1,15 +1,11 @@
-local assets=
+local assets =
 {   
 	Asset("ANIM", "anim/spell.zip"),    
-	Asset("ATLAS", "images/inventoryimages/scheme.xml"),    
+	Asset("ATLAS", "images/inventoryimages/schemetool.xml"),    
 
 	Asset("ANIM", "anim/staffs.zip"),
     Asset("ANIM", "anim/swap_staffs.zip"),
 }
-
-local function GetDesc(inst, viewer)
-	return string.format("ha, ha, ha.")
-end
 
 local function SetState(inst, data)
 	local condition = GetCanpell(data.owner)
@@ -37,7 +33,7 @@ local function fn()
 	inst.entity:AddNetwork()	
 	inst.entity:AddSoundEmitter() 
 	inst.entity:AddMiniMapEntity()
-    inst.MiniMapEntity:SetIcon("scheme.tex") 
+    inst.MiniMapEntity:SetIcon("schemetool.tex") 
 
 	MakeInventoryPhysics(inst)
 	
@@ -58,10 +54,9 @@ local function fn()
 	inst:AddComponent("makegate")
 
 	inst:AddComponent("inspectable")    
-	inst.components.inspectable.getspecialdescription = GetDesc
 	
 	inst:AddComponent("inventoryitem")   
-	inst.components.inventoryitem.atlasname = "images/inventoryimages/scheme.xml" 
+	inst.components.inventoryitem.atlasname = "images/inventoryimages/schemetool.xml" 
 
 	inst:AddComponent("equippable")  
 	inst.components.equippable:SetOnEquip( onequip )    
@@ -70,4 +65,4 @@ local function fn()
 	return inst
 end
 	
-return Prefab("common/inventory/scheme", fn, assets)
+return Prefab("common/inventory/schemetool", fn, assets)

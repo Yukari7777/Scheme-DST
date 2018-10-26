@@ -13,14 +13,18 @@ end
 local function GetDesc(inst, viewer)
 	local name = inst.components.taggable:GetText() or "#"..inst.components.scheme.index
 	local pointer = inst.components.scheme.pointer
-	local destination = ""
+	local destination = "\nand it is not connected."
 
 	if pointer ~= nil then
 		local destname = _G.TUNNELNETWORK[pointer].inst.components.taggable:GetText() or "#"..pointer
-		destination = "\nand is connected to "..destname
+		destination = destname ~= nil and "\nand is connected to \n"..destname
 	end
 
-	return string.format( "My Name is "..name..destination )
+	if name == "#1" and pointer == nil then
+		return GetDescription(viewer, inst)
+	end
+
+	return string.format( name..destination )
 end
 
 local function onaccept(inst, giver, item)
