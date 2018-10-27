@@ -4,6 +4,21 @@ local assets =
 	Asset("ANIM", "anim/ui_board_5x3.zip"),
 }
 
+local function onsave(inst, data)
+	data.index = inst.components.scheme.index
+	data.pointer = inst.components.scheme.pointer
+	data.owner = inst.components.scheme.owner
+end
+
+local function onload(inst, data)
+	if data ~= nil then
+		inst.components.scheme.index = data.index
+		inst.components.scheme.pointer = data.pointer
+		inst.components.scheme.owner = data.owner
+		inst.components.scheme:InitGate()
+	end
+end
+
 local function onremoved(inst, doer)
 	if inst.components.scheme ~= nil then
 		inst.components.scheme:Disconnect(inst.components.scheme.index)
@@ -13,14 +28,14 @@ end
 local function GetDesc(inst, viewer)
 	local name = inst.components.taggable:GetText() or "#"..inst.components.scheme.index
 	local pointer = inst.components.scheme.pointer
-	local destination = "\nand it is not connected."
+	local destination = "\nIt is not connected."
 
 	if pointer ~= nil then
 		local destname = _G.TUNNELNETWORK[pointer].inst.components.taggable:GetText() or "#"..pointer
-		destination = destname ~= nil and "\nand is connected to \n"..destname
+		destination = destname ~= nil and "\nconnected to\n"..destname
 	end
 
-	if name == "#1" and pointer == nil then
+	if name == "#1" and pointer == nil and #_G.TUNNELNETWORK == 1 then
 		return GetDescription(viewer, inst)
 	end
 
@@ -28,8 +43,9 @@ local function GetDesc(inst, viewer)
 end
 
 local function onaccept(inst, giver, item)
+	if inst.components.scheme.pointer == nil then return false end
     inst.components.inventory:DropItem(item)
-    inst.components.teleporter:Activate(item)
+    inst.components.scheme:Activate(item)
 end
 
 local function fn()
@@ -66,7 +82,6 @@ local function fn()
 	inst.components.inspectable.getspecialdescription = GetDesc
 
 	inst:AddComponent("scheme")
-	inst.components.scheme:InitGate()
 
 	inst:AddComponent("playerprox")
 	inst.components.playerprox:SetDist(5,5)
@@ -83,12 +98,16 @@ local function fn()
 
 	inst:AddComponent("taggable")
 
-	--inst:AddComponent("trader")
-    --inst.components.trader.acceptnontradable = true
-    --inst.components.trader.onaccept = onaccept
-    --inst.components.trader.deleteitemonaccept = false
+	inst:AddComponent("inventory")
+
+	inst:AddComponent("trader")
+    inst.components.trader.acceptnontradable = true
+    inst.components.trader.onaccept = onaccept
+    inst.components.trader.deleteitemonaccept = false
 
 	inst.OnRemoveEntity = onremoved
+	inst.OnSave = onsave
+	inst.OnLoad = onload
 
     return inst
 end

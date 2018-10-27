@@ -13,6 +13,8 @@ Assets = {
 
 ----- GLOBAL & require list -----
 local require = GLOBAL.require
+local TECH = GLOBAL.TECH
+local RECIPETABS = GLOBAL.RECIPETABS
 require "class"
 GLOBAL.TUNNELNETWORK = {}
 
@@ -35,6 +37,8 @@ SetTaggableText = function(player, target, text)
     end
 end
 AddModRPCHandler("scheme", "write", SetTaggableText)
+
+AddRecipe("schemetool", {Ingredient("nightmarefuel", 10), Ingredient("livinglog", 5), Ingredient("purplegem", 2)}, RECIPETABS.MAGIC, TECH.MAGIC_TWO, nil, nil, nil, nil, nil, "images/inventoryimages/schemetool.xml", "schemetool.tex")
 
 ------ Mod Imports ------
 

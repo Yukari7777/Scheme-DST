@@ -1,6 +1,7 @@
 local scheme = Class(function(self, inst)
     self.inst = inst
 	self.index = nil
+	self.owner = nil
 	self.pointer = nil
 end)
 
@@ -103,21 +104,6 @@ function scheme:GetTarget(pointer)
 	return _G.TUNNELNETWORK[pointer].inst
 end
 
-function scheme:OnSave()
-	return {
-		index = self.index,
-		pointer = self.pointer,
-	}
-end
-
-function scheme:OnLoad(data)
-	if data ~= nil then
-		self.index = data.index
-		self.pointer = data.pointer
-		self:InitGate(self.inst)
-	end
-end
-
 function scheme:IsConnected()
 	return self.pointer ~= nil and self:GetTarget(self.pointer) ~= nil
 end
@@ -125,6 +111,14 @@ end
 function scheme:FindIndex()
 	local index = 1
 	while _G.TUNNELNETWORK[index] ~= nil do
+		index = index + 1
+	end
+	return index
+end
+
+function scheme:FindFirstKey()
+	local index = 1
+	while _G.TUNNELNETWORK[index] == nil do
 		index = index + 1
 	end
 	return index
@@ -168,7 +162,7 @@ function scheme:Connect()
 	local pointer = next(_G.TUNNELNETWORK, self.pointer)
 	if #_G.TUNNELNETWORK == 1 then return end
 	if pointer == self.index then pointer = next(_G.TUNNELNETWORK, pointer) end
-	if pointer == nil then pointer = 1 end
+	if pointer == nil then pointer = self.index ~= 1 and self:FindFirstKey() or next(_G.TUNNELNETWORK, self:FindFirstKey()) end
 
 	self:Target(pointer)
 end

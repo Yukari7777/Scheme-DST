@@ -20,10 +20,15 @@ server_filter_tags = {
 
 local spawncost = {}
 for i = 0, 200 do spawncost[i + 1] = { description = ""..i.."", data = i } end
+spawncost[1].description = "No cost"
+
 local delcost = {}
 for i = 0, 200 do delcost[i + 1] = { description = ""..i.."", data = i } end
+delcost[1].description = "No cost"
+
 local usecost = {}
 for i = 0, 200 do usecost[i + 1] = { description = ""..i.."", data = i } end
+usecost[1].description = "No cost"
 
 
 configuration_options = {
@@ -38,7 +43,7 @@ configuration_options = {
 	{
 		name = "delcost",
 		label = "Erase Cost",
-		hover = "Set sanity cost on Removing Scheme Gate.",
+		hover = "Set sanity cost on removing Scheme Gate.",
 		options = delcost,
 		default = 10,
 	},
