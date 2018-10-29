@@ -113,15 +113,24 @@ function scheme:FindIndex()
 	while _G.TUNNELNETWORK[index] ~= nil do
 		index = index + 1
 	end
+	_G.TUNNELFIRSTINDEX = (_G.TUNNELFIRSTINDEX == nil or _G.TUNNELFIRSTINDEX > index) and index
+	_G.TUNNELLASTINDEX = (_G.TUNNELLASTINDEX == nil or _G.TUNNELLASTINDEX < index) and index
+
 	return index
 end
 
-function scheme:FindFirstKey()
-	local index = 1
+function scheme:Next(index) 
+	-- for some reason in ordering index into TUNNELNETWORK, next function was not a good answer.
+	-- because next returns a key inserted AFTER the table key inserted previously. 
+	-- which is NOT in ascending order. (table[3]'s next could be table[2]) 
+	if index == _G.TUNNELLASTINDEX then return _G.TUNNELFIRSTINDEX end
+
+	local key = index + 1
 	while _G.TUNNELNETWORK[index] == nil do
-		index = index + 1
+		key = key + 1
 	end
-	return index
+
+	return key
 end
 
 function scheme:GetIndex()
@@ -140,6 +149,7 @@ function scheme:AddToNetwork()
 		inst = self.inst,
 		owner = self.inst.owner,
 	}
+	_G.NUMTUNNEL = _G.NUMTUNNEL + 1
 	self.index = index
 end
 
@@ -148,7 +158,9 @@ function scheme:Disconnect(index)
 		if v.inst.components.scheme and v.inst.components.scheme.pointer == index then
 			v.inst.components.scheme.pointer = nil
 			v.inst.islinked:set(false)
-			v.inst.sg:GoToState("closing")
+			if v.inst.sg.currentstate.name == ("open" or "opening") then
+				v.inst.sg:GoToState("closing")
+			end
 		end
 	end
 	self.index = nil
@@ -156,13 +168,15 @@ function scheme:Disconnect(index)
 	self.inst.islinked:set(false)
 	self.inst.sg:GoToState("closing")
 	_G.TUNNELNETWORK[index] = nil
+	_G.NUMTUNNEL = _G.NUMTUNNEL - 1
 end
 
 function scheme:Connect()
-	local pointer = next(_G.TUNNELNETWORK, self.pointer)
-	if #_G.TUNNELNETWORK == 1 then return end
-	if pointer == self.index then pointer = next(_G.TUNNELNETWORK, pointer) end
-	if pointer == nil then pointer = self.index ~= 1 and self:FindFirstKey() or next(_G.TUNNELNETWORK, self:FindFirstKey()) end
+	if _G.NUMTUNNEL == 1 then return end
+
+	local pointer = self:Next(self.pointer)
+	if pointer == self.index then pointer = self:Next(pointer) end
+	print(pointer)
 
 	self:Target(pointer)
 end

@@ -17,6 +17,10 @@ local TECH = GLOBAL.TECH
 local RECIPETABS = GLOBAL.RECIPETABS
 require "class"
 GLOBAL.TUNNELNETWORK = {}
+GLOBAL.TUNNELFIRSTINDEX = nil
+GLOBAL.TUNNELLASTINDEX = nil
+GLOBAL.NUMTUNNEL = 0
+
 
 AddMinimapAtlas("images/map_icons/minimap_tunnel.xml")
 AddMinimapAtlas("images/map_icons/schemetool.xml")
