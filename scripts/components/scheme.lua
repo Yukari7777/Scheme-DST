@@ -113,9 +113,6 @@ function scheme:FindIndex()
 	while _G.TUNNELNETWORK[index] ~= nil do
 		index = index + 1
 	end
-	_G.TUNNELFIRSTINDEX = (_G.TUNNELFIRSTINDEX == nil or _G.TUNNELFIRSTINDEX > index) and index
-	_G.TUNNELLASTINDEX = (_G.TUNNELLASTINDEX == nil or _G.TUNNELLASTINDEX < index) and index
-
 	return index
 end
 
@@ -123,10 +120,11 @@ function scheme:Next(index)
 	-- for some reason in ordering index into TUNNELNETWORK, next function was not a good answer.
 	-- because next returns a key inserted AFTER the table key inserted previously. 
 	-- which is NOT in ascending order. (table[3]'s next could be table[2]) 
-	if index == _G.TUNNELLASTINDEX then return _G.TUNNELFIRSTINDEX end
+	if index ~= nil and index >= _G.TUNNELLASTINDEX then return _G.TUNNELFIRSTINDEX end
 
-	local key = index + 1
-	while _G.TUNNELNETWORK[index] == nil do
+	local key = index ~= nil and index + 1 or 1
+	while _G.TUNNELNETWORK[key] == nil do
+		print(key)
 		key = key + 1
 	end
 
@@ -149,6 +147,8 @@ function scheme:AddToNetwork()
 		inst = self.inst,
 		owner = self.inst.owner,
 	}
+	_G.TUNNELFIRSTINDEX = (_G.TUNNELFIRSTINDEX == nil or _G.TUNNELFIRSTINDEX > index) and index or _G.TUNNELFIRSTINDEX
+	_G.TUNNELLASTINDEX = (_G.TUNNELLASTINDEX == nil or _G.TUNNELLASTINDEX < index) and index or _G.TUNNELLASTINDEX
 	_G.NUMTUNNEL = _G.NUMTUNNEL + 1
 	self.index = index
 end
@@ -176,7 +176,6 @@ function scheme:Connect()
 
 	local pointer = self:Next(self.pointer)
 	if pointer == self.index then pointer = self:Next(pointer) end
-	print(pointer)
 
 	self:Target(pointer)
 end

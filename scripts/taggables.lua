@@ -28,9 +28,9 @@ end
 writeables.makescreen = function(inst, doer) -- todo : make screen like a tag.
     local data = {
 		prompt = STRINGS.SIGNS.MENU.PROMPT,
-		animbank = "ui_board_5x3",
-		animbuild = "ui_board_5x3",
-		menuoffset = Vector3(6, -70, 0),
+		animbank = "ui_board_5x1",
+		animbuild = "ui_board_5x1",
+		menuoffset = Vector3(6, 20, 0),
 
 		cancelbtn = { text = STRINGS.SIGNS.MENU.CANCEL, cb = nil, control = CONTROL_CANCEL },
 		middlebtn = { text = STRINGS.SIGNS.MENU.RANDOM, cb = function(inst, doer, widget)

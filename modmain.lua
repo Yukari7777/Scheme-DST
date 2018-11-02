@@ -9,6 +9,8 @@ Assets = {
 	Asset( "ATLAS", "images/map_icons/minimap_tunnel.xml"),
 	Asset( "IMAGE", "images/map_icons/schemetool.tex" ),
 	Asset( "ATLAS", "images/map_icons/schemetool.xml" ),
+
+	Asset( "ANIM" , "anim/ui_board_5x1.zip"),
 }
 
 ----- GLOBAL & require list -----

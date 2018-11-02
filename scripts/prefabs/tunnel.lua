@@ -1,7 +1,7 @@
 local assets =
 {
 	Asset("ANIM", "anim/tunnel.zip" ),
-	Asset("ANIM", "anim/ui_board_5x3.zip"),
+	Asset("ANIM", "anim/ui_board_5x1.zip"),
 }
 
 local function onsave(inst, data)
@@ -35,7 +35,7 @@ local function GetDesc(inst, viewer)
 		destination = destname ~= nil and "\nconnected to\n"..destname
 	end
 
-	if name == "#1" and pointer == nil and #_G.TUNNELNETWORK == 1 then
+	if name == "#1" and pointer == nil and _G.TUNNELFIRSTINDEX == nil then
 		return GetDescription(viewer, inst)
 	end
 
@@ -43,7 +43,7 @@ local function GetDesc(inst, viewer)
 end
 
 local function onaccept(inst, giver, item)
-	if inst.components.scheme.pointer == nil then return false end
+	if inst.components.scheme.pointer == nil then return false end -- Scheme : Burp.
     inst.components.inventory:DropItem(item)
     inst.components.scheme:Activate(item)
 end
