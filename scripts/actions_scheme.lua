@@ -195,7 +195,7 @@ ACTIONS.JUMPIN.fn = function(act)
 			act.doer:DoTaskInTime(0.8, function()
 				act.target.components.scheme:Activate(act.doer)
 			end)
-			act.doer:DoTaskInTime(1.5, function() -- Move entities outside of border inside
+			act.doer:DoTaskInTime(1.5, function() -- Move entities outside of map border inside
 				if not act.doer:IsOnValidGround() then
 					local dest = GLOBAL.FindNearbyLand(act.doer:GetPosition(), 8)
 					if dest ~= nil then

@@ -7,6 +7,11 @@ end)
 
 function scheme:OnActivate(other, doer) 
 	other.sg:GoToState("open")
+	other:DoTaskInTime(1.5, function()
+		if other.components.scheme.pointer == nil then
+			other.sg:GoToState("closing")
+		end
+	end)
 end
 
 function scheme:Activate(doer)
@@ -124,10 +129,19 @@ function scheme:Next(index)
 
 	local key = index ~= nil and index + 1 or 1
 	while _G.TUNNELNETWORK[key] == nil do
-		print(key)
 		key = key + 1
+		if key > 10000 then return end
 	end
 
+	return key
+end
+
+function scheme:keyfind(index, asc)
+	local key = asc and index + 1 or index - 1
+	while _G.TUNNELNETWORK[key] == nil do
+		key = asc and key + 1 or key - 1
+		if key > 10000 or key < 0 then return end
+	end
 	return key
 end
 
@@ -167,6 +181,8 @@ function scheme:Disconnect(index)
 	self.pointer = nil
 	self.inst.islinked:set(false)
 	self.inst.sg:GoToState("closing")
+	_G.TUNNELFIRSTINDEX = _G.TUNNELFIRSTINDEX == index and self:keyfind(index, true) or _G.TUNNELFIRSTINDEX
+	_G.TUNNELLASTINDEX = _G.TUNNELLASTINDEX == index and self:keyfind(index, false) or _G.TUNNELLASTINDEX
 	_G.TUNNELNETWORK[index] = nil
 	_G.NUMTUNNEL = _G.NUMTUNNEL - 1
 end

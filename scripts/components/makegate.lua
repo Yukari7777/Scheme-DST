@@ -61,6 +61,7 @@ end
 function MakeGate:Index(target, caster)
 	target.components.scheme:Connect()
 
+	if target.components.scheme.pointer == nil then return false end
 	local dest = _G.TUNNELNETWORK[target.components.scheme.pointer].inst.components.taggable:GetText() or "#"..target.components.scheme.pointer
 	target.sg:GoToState("opening")
 
