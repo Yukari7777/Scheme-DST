@@ -25,7 +25,7 @@ function PlayerHud:CloseTaggableWidget()
     end
 end
 
-writeables.makescreen = function(inst, doer) -- todo : make screen like a tag.
+writeables.makescreen = function(inst, doer)
     local data = {
 		prompt = STRINGS.SIGNS.MENU.PROMPT,
 		animbank = "ui_board_5x1",
