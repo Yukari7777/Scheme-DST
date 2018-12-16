@@ -31,8 +31,7 @@ local spawng = State({
         inst.SoundEmitter:PlaySound("dontstarve/wilson/attack_weapon")
     end,
 
-    timeline = 
-    {
+    timeline = {
         TimeEvent(15*FRAMES, function(inst) inst:PerformBufferedAction() end),
     },
 
@@ -86,15 +85,15 @@ local function action_scheme(inst, doer, pos, actions, right)
 end
 
 
-local ERASEG = AddAction("ERASEG", "Delete Scheme Tunnel", function(act)
+local CONFIGG = AddAction("CONFIGG", "Configurate", function(act)
 	local staff = act.invobject or act.doer.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
 	if staff and staff.components.makegate then
-		return staff.components.makegate:Erase(act.target, act.doer)
+		return staff.components.makegate:Configurate(act.target, act.doer)
 	end
 end)
 
-ERASEG.priority = 8
-ERASEG.distance = 2
+CONFIGG.priority = 8
+CONFIGG.distance = 2
 
 local INDEXG = AddAction("INDEXG", "Change Destination", function(act)
 	local staff = act.invobject or act.doer.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
@@ -106,8 +105,8 @@ end)
 INDEXG.priority = 8
 INDEXG.distance = 1
 
-local eraseg = State({
-    name = "eraseg",
+local configg = State({
+    name = "configg",
     tags = {"doing", "busy", "canrotate"},
 
     onenter = function(inst)
@@ -117,8 +116,7 @@ local eraseg = State({
         inst.SoundEmitter:PlaySound("dontstarve/wilson/attack_weapon")
     end,
 
-    timeline = 
-    {
+    timeline = {
         TimeEvent(15*FRAMES, function(inst) inst:PerformBufferedAction() end),
     },
 
@@ -131,8 +129,8 @@ local eraseg = State({
     },
 })
 
-local erasec = State({
-	name = "erasec",
+local configgc = State({
+	name = "configgc",
     tags = { "doing", "busy", "canrotate" },
 
     onenter = function(inst)
@@ -160,17 +158,17 @@ local erasec = State({
     end,
 })
 	
-AddStategraphState("wilson", eraseg)
-AddStategraphState("wilson_client", erasec)
-AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.ERASEG, "eraseg"))
+AddStategraphState("wilson", configg)
+AddStategraphState("wilson_client", configgc)
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.CONFIGG, "configg"))
 AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.INDEXG, "doshortaction"))
-AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.ERASEG, "erasec"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.CONFIGG, "configgc"))
 AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.INDEXG, "doshortaction"))
 
 local function scheme(inst, doer, target, actions, right)
 	if right then
 		if target:HasTag("tunnel") then
-			table.insert(actions, ACTIONS.ERASEG)
+			table.insert(actions, ACTIONS.CONFIGG)
 		end
 	else
 		if target:HasTag("tunnel") then
@@ -181,7 +179,6 @@ end
 
 AddComponentAction("EQUIPPED", "makegate", scheme)
 AddComponentAction("POINT", "makegate", action_scheme)
-
 
 ACTIONS.JUMPIN.fn = function(act)
 	if act.doer ~= nil and

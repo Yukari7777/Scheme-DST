@@ -1,7 +1,7 @@
 name = "Scheme"
-description = "Suspicious, Creepy gaps linking two spaces."
+version = "2.0"
+description = "Suspicious, Creepy gaps linking two spaces.\nVersion : "..version
 author = "Yakumo Yukari"
-version = "1.0"
 forumthread = ""
 api_version = 6
 api_version_dst = 10
@@ -30,11 +30,13 @@ local usecost = {}
 for i = 0, 200 do usecost[i + 1] = { description = ""..i.."", data = i } end
 usecost[1].description = "No cost"
 
+local GPL = {}
+for i = 0, 4 do GPL[i + 1] = { description = ""..i.."", data = i } end
 
 configuration_options = {
 	{
 		name = "spawncost",
-		label = "Spawn Cost",
+		label = "Spawn cost",
 		hover = "Set sanity cost on creating Scheme Gate.",
 		options = spawncost,
 		default = 30,
@@ -42,7 +44,7 @@ configuration_options = {
 
 	{
 		name = "delcost",
-		label = "Erase Cost",
+		label = "Remove cost",
 		hover = "Set sanity cost on removing Scheme Gate.",
 		options = delcost,
 		default = 10,
@@ -50,9 +52,17 @@ configuration_options = {
 
 	{
 		name = "usecost",
-		label = "Use Cost",
+		label = "Use cost",
 		hover = "Set sanity cost of using Scheme Gate.",
 		options = usecost,
 		default = 5,
+	},
+
+	{
+		name = "permission",
+		label = "Global permission level",
+		hover = "0 = Everyone can use or modify.[see mod page for more info]\n1 = Everyone can use, cannot modify.\n2 = Only allowed user can use or modify.\n3 = Only allowed user can use, cannot modify.\n4 = Only original owner can only use.",
+		options = GPL,
+		default = 1,
 	},
 }

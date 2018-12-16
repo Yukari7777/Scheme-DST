@@ -1,7 +1,10 @@
 local scheme = Class(function(self, inst)
     self.inst = inst
 	self.index = nil
+
 	self.owner = nil
+	self.permlevel = 1
+
 	self.pointer = nil
 end)
 
@@ -154,12 +157,17 @@ function scheme:Target(pointer)
 	self.inst.islinked:set(true)
 end
 
+function scheme:SetOwner(player)
+	if player.userid ~= nil then
+		self.owner = player.userid
+	end
+end
+
 function scheme:AddToNetwork()
 	local index = self.index ~= nil and self.index or self:FindIndex()
 
 	_G.TUNNELNETWORK[index] = {
 		inst = self.inst,
-		owner = self.inst.owner,
 	}
 	_G.TUNNELFIRSTINDEX = (_G.TUNNELFIRSTINDEX == nil or _G.TUNNELFIRSTINDEX > index) and index or _G.TUNNELFIRSTINDEX
 	_G.TUNNELLASTINDEX = (_G.TUNNELLASTINDEX == nil or _G.TUNNELLASTINDEX < index) and index or _G.TUNNELLASTINDEX

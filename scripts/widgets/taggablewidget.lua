@@ -43,8 +43,12 @@ local function onmiddle(inst, doer, widget)
     end
     --print("OnMiddle",inst,doer,widget)
 
-    widget.config.middlebtn.cb(inst, doer, widget)
-    widget.edit_text:SetEditing(true)
+	local writeable = inst.replica.taggable
+    if writeable ~= nil then
+        writeable:Remove(doer)
+    end
+
+    doer.HUD:CloseTaggableWidget()
 end
 
 local function oncancel(inst, doer, widget)
@@ -139,7 +143,7 @@ local TaggableWidget = Class(Screen, function(self, owner, writeable, config)
     self.buttons = {}
     table.insert(self.buttons, { text = config.cancelbtn.text, cb = function() oncancel(self.writeable, self.owner, self) end, control = config.cancelbtn.control })
     if config.middlebtn ~= nil then
-        table.insert(self.buttons, { text = config.middlebtn.text, cb = function() onmiddle(self.writeable, self.owner, self) end, control = config.middlebtn.control })
+		table.insert(self.buttons, { text = config.middlebtn.text, cb = function() onmiddle(self.writeable, self.owner, self) end, control = config.middlebtn.control })
     end
     table.insert(self.buttons, { text = config.acceptbtn.text, cb = function() onaccept(self.writeable, self.owner, self) end, control = config.acceptbtn.control })
 

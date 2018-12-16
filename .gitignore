@@ -64,3 +64,5 @@ luac.out
 README.md
 
 /exported
+*.todo
+*.png

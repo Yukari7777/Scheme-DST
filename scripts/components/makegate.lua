@@ -14,6 +14,12 @@ function MakeGate:CanSpell(caster)
 	return true
 end
 
+function MakeGate:Configurate(target, caster)
+	target:PushEvent("tag", {spawner = caster})
+
+	return true
+end
+
 function MakeGate:Create(pt, caster)
 	local modname = KnownModIndex:GetModActualName("Scheme")
 	local SPAWNCOST = GetModConfigData("spawncost", modname)
@@ -34,9 +40,9 @@ function MakeGate:Create(pt, caster)
 			end
 		end
 		local scheme = SpawnPrefab("tunnel")
-		scheme.Transform:SetPosition(pt.x, pt.y, pt.z)
-		scheme:PushEvent("tag", {spawner = caster})
 		scheme.components.scheme:InitGate()
+		scheme.Transform:SetPosition(pt.x, pt.y, pt.z)
+		self:Configurate(scheme, caster)
 	end)
 	
 	return true

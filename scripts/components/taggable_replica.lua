@@ -95,6 +95,12 @@ function Taggable:Write(doer, text)
     end
 end
 
+function Taggable:Remove(doer)
+	if self.classified ~= nil and doer == ThePlayer then
+		SendModRPCToServer(MOD_RPC["scheme"]["remove"], self.inst)
+	end
+end
+
 function Taggable:EndWriting()
     if self.opentask ~= nil then
         self.opentask:Cancel()
