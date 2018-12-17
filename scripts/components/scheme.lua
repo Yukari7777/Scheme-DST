@@ -17,8 +17,9 @@ function scheme:OnActivate(other, doer)
 	end)
 end
 
-function scheme:Activate(doer)
-	if not self:IsConnected() then
+function scheme:Activate(doer, index)
+	local index = tonumber(index)
+	if not self:IsConnected(index) then
 		return
 	end
 	
@@ -26,12 +27,12 @@ function scheme:Activate(doer)
 		doer.SoundEmitter:KillSound("wormhole_travel")
 	end
 
-	self:OnActivate(self:GetTarget(self.pointer), doer)
-	self:Teleport(doer)
+	self:OnActivate(self:GetTarget(index), doer)
+	self:Teleport(doer, index)
 
 	if doer.components.leader then
 		for follower,v in pairs(doer.components.leader.followers) do
-			self:Teleport(follower)
+			self:Teleport(follower, index)
 		end
 	end
 
@@ -45,7 +46,7 @@ function scheme:Activate(doer)
 					eyebone = item
 				end
 				for follower,v in pairs(item.components.leader.followers) do
-					self:Teleport(follower)
+					self:Teleport(follower, index)
 				end
 			end
 		end
@@ -59,7 +60,7 @@ function scheme:Activate(doer)
 							eyebone = item
 						end
 						for follower,v in pairs(item.components.leader.followers) do
-							self:Teleport(follower)
+							self:Teleport(follower, index)
 						end
 					end
 				end
@@ -73,7 +74,7 @@ function scheme:Activate(doer)
 						if item.components.leader then
 							for follower,v in pairs(item.components.leader.followers) do
 								if follower and (not follower.components.health or (follower.components.health and not follower.components.health:IsDead())) then
-									self:Teleport(follower)
+									self:Teleport(follower, index)
 								end
 							end
 						end
@@ -84,36 +85,34 @@ function scheme:Activate(doer)
 	end
 end
 
-function scheme:Teleport(obj)
-	if self.pointer ~= nil then
-		local target = self:GetTarget(self.pointer)
-		local offset = 2.0
-		local angle = math.random() * 360
-		local target_x, target_y, target_z = target.Transform:GetWorldPosition()
-		local modname = KnownModIndex:GetModActualName("Scheme")
-		local cost = GetModConfigData("usecost", modname) -- GetModConfigData not within modmain must have a modname argument.
-		target_x = target_x + math.sin(angle)*offset
-		target_z = target_z + math.cos(angle)*offset
-		if obj.Physics then
-			obj.Physics:Teleport( target_x, target_y, target_z )
-		elseif obj.Transform then
-			obj.Transform:SetPosition( target_x, target_y, target_z )
-		end
-		if obj.components.talker ~= nil then
-            obj.components.talker:ShutUp()
-        end
-        if obj.components.sanity ~= nil and cost ~= 0 then
-            obj.components.sanity:DoDelta(-cost)
-        end
+function scheme:Teleport(obj, index)
+	local target = self:GetTarget(index)
+	local offset = 2.0
+	local angle = math.random() * 360
+	local target_x, target_y, target_z = target.Transform:GetWorldPosition()
+	local modname = KnownModIndex:GetModActualName("Scheme")
+	local cost = GetModConfigData("usecost", modname)
+	target_x = target_x + math.sin(angle)*offset
+	target_z = target_z + math.cos(angle)*offset
+	if obj.Physics then
+		obj.Physics:Teleport( target_x, target_y, target_z )
+	elseif obj.Transform then
+		obj.Transform:SetPosition( target_x, target_y, target_z )
 	end
+	if obj.components.talker ~= nil then
+        obj.components.talker:ShutUp()
+    end
+    if obj.components.sanity ~= nil and cost ~= 0 then
+        obj.components.sanity:DoDelta(-cost)
+    end
 end
 
-function scheme:GetTarget(pointer)
-	return _G.TUNNELNETWORK[pointer].inst
+function scheme:GetTarget(index)
+	return _G.TUNNELNETWORK[index] and _G.TUNNELNETWORK[index].inst
 end
 
-function scheme:IsConnected()
-	return self.pointer ~= nil and self:GetTarget(self.pointer) ~= nil
+function scheme:IsConnected(index)
+	return self:GetTarget(index) ~= nil
 end
 
 function scheme:FindIndex()
@@ -122,39 +121,6 @@ function scheme:FindIndex()
 		index = index + 1
 	end
 	return index
-end
-
-function scheme:Next(index) 
-	-- for some reason in ordering index into TUNNELNETWORK, next function was not a good answer.
-	-- because next returns a key inserted AFTER the table key inserted previously. 
-	-- which is NOT in ascending order. (table[3]'s next could be table[2]) 
-	if index ~= nil and index >= _G.TUNNELLASTINDEX then return _G.TUNNELFIRSTINDEX end
-
-	local key = index ~= nil and index + 1 or 1
-	while _G.TUNNELNETWORK[key] == nil do
-		key = key + 1
-		if key > 10000 then return end
-	end
-
-	return key
-end
-
-function scheme:keyfind(index, asc)
-	local key = asc and index + 1 or index - 1
-	while _G.TUNNELNETWORK[key] == nil do
-		key = asc and key + 1 or key - 1
-		if key > 10000 or key < 0 then return end
-	end
-	return key
-end
-
-function scheme:GetIndex()
-	return self.index
-end
-
-function scheme:Target(pointer)
-	self.pointer = pointer
-	self.inst.islinked:set(true)
 end
 
 function scheme:SetOwner(player)
@@ -169,39 +135,15 @@ function scheme:AddToNetwork()
 	_G.TUNNELNETWORK[index] = {
 		inst = self.inst,
 	}
-	_G.TUNNELFIRSTINDEX = (_G.TUNNELFIRSTINDEX == nil or _G.TUNNELFIRSTINDEX > index) and index or _G.TUNNELFIRSTINDEX
-	_G.TUNNELLASTINDEX = (_G.TUNNELLASTINDEX == nil or _G.TUNNELLASTINDEX < index) and index or _G.TUNNELLASTINDEX
 	_G.NUMTUNNEL = _G.NUMTUNNEL + 1
 	self.index = index
+	self.inst.replica.taggable.index:set(index)
 end
 
 function scheme:Disconnect(index)
-	for k, v in pairs(_G.TUNNELNETWORK) do
-		if v.inst.components.scheme and v.inst.components.scheme.pointer == index then
-			v.inst.components.scheme.pointer = nil
-			v.inst.islinked:set(false)
-			if v.inst.sg.currentstate.name == ("open" or "opening") then
-				v.inst.sg:GoToState("closing")
-			end
-		end
-	end
 	self.index = nil
-	self.pointer = nil
-	self.inst.islinked:set(false)
-	self.inst.sg:GoToState("closing")
-	_G.TUNNELFIRSTINDEX = _G.TUNNELFIRSTINDEX == index and self:keyfind(index, true) or _G.TUNNELFIRSTINDEX
-	_G.TUNNELLASTINDEX = _G.TUNNELLASTINDEX == index and self:keyfind(index, false) or _G.TUNNELLASTINDEX
 	_G.TUNNELNETWORK[index] = nil
 	_G.NUMTUNNEL = _G.NUMTUNNEL - 1
-end
-
-function scheme:Connect()
-	if _G.NUMTUNNEL == 1 then return end
-
-	local pointer = self:Next(self.pointer)
-	if pointer == self.index then pointer = self:Next(pointer) end
-
-	self:Target(pointer)
 end
 
 function scheme:SelectDest(caster)
@@ -213,8 +155,8 @@ end
 
 function scheme:InitGate()
 	self:AddToNetwork()
-	if self.pointer ~= nil then
-		self:Target(self.pointer)
+	if _G.NUMTUNNEL > 1 then
+		self.inst.islinked:set(true)
 	end
 end
 

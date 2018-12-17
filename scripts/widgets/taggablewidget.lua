@@ -27,7 +27,7 @@ local function onaccept(inst, doer, widget)
 
     local taggable = inst.replica.taggable
     if taggable ~= nil then
-        taggable:DoneAction(doer, msg)
+        taggable:DoAction(doer, msg)
     end
 
     if widget.config.acceptbtn.cb ~= nil then
@@ -59,7 +59,7 @@ local function oncancel(inst, doer, widget)
 
     local taggable = inst.replica.taggable
     if taggable ~= nil then
-        taggable:DoneAction(doer)
+        taggable:DoAction(doer)
     end
 
     if widget.config.cancelbtn.cb ~= nil then

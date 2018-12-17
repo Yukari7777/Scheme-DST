@@ -74,22 +74,9 @@ local function fn()
     inst:AddComponent("inspectable")
 	inst.components.inspectable.getspecialdescription = GetDesc
 
-	inst:AddComponent("scheme")
-
---	inst:AddComponent("playerprox")
---	inst.components.playerprox:SetDist(5,5)
---	inst.components.playerprox.onnear = function()
---		if inst.components.scheme:IsConnected() and not (inst.sg.currentstate.name == ("open" or "opening")) then
---			inst.sg:GoToState("opening")
---		end
---	end
---	inst.components.playerprox.onfar = function()
---		if inst.sg.currentstate.name == ("open" or "opening") then
---			inst.sg:GoToState("closing")
---		end
---	end
-
 	inst:AddComponent("taggable")
+
+	inst:AddComponent("scheme")
 
 	inst:AddComponent("inventory")
 

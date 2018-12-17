@@ -95,14 +95,13 @@ end)
 CONFIGG.priority = 8
 CONFIGG.distance = 2
 
-local INDEXG = AddAction("INDEXG", "Jump In", function(act)
+local SELECTG = AddAction("SELECTG", "Select", function(act)
 	if act.target ~= nil and act.target.components.scheme ~= nil then
 		return act.target.components.scheme:SelectDest(act.doer)
 	end
 end)
 
-INDEXG.priority = 8
-INDEXG.distance = 1
+SELECTG.priority = 8
 
 local configg = State({
     name = "configg",
@@ -160,9 +159,9 @@ local configgc = State({
 AddStategraphState("wilson", configg)
 AddStategraphState("wilson_client", configgc)
 AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.CONFIGG, "configg"))
-AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.INDEXG, "doshortaction"))
+AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.SELECTG, "doshortaction"))
 AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.CONFIGG, "configgc"))
-AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.INDEXG, "doshortaction"))
+AddStategraphActionHandler("wilson_client", ActionHandler(ACTIONS.SELECTG, "doshortaction"))
 
 local function scheme(inst, doer, target, actions, right)
 	if right then
@@ -175,40 +174,9 @@ end
 AddComponentAction("EQUIPPED", "makegate", scheme)
 AddComponentAction("POINT", "makegate", action_scheme)
 
-ACTIONS.JUMPIN.fn = function(act)
-	if act.doer ~= nil and
-        act.doer.sg ~= nil and
-        act.doer.sg.currentstate.name == "jumpin_pre" then
-        if act.target ~= nil and act.target.components.teleporter ~= nil and act.target.components.teleporter:IsActive() then
-            act.doer.sg:GoToState("jumpin", { teleporter = act.target })
-            return true
-		elseif act.target ~= nil and act.target.components.scheme ~= nil and act.target.components.scheme:IsConnected() then
-			act.doer.sg:GoToState("jumpin", { teleporter = act.target })
-			act.doer:DoTaskInTime(0.8, function()
-				act.target.components.scheme:Activate(act.doer)
-			end)
-			act.doer:DoTaskInTime(1.5, function() -- Move entities outside of map border inside
-				if not act.doer:IsOnValidGround() then
-					local dest = GLOBAL.FindNearbyLand(act.doer:GetPosition(), 8)
-					if dest ~= nil then
-						if act.doer.Physics ~= nil then
-							act.doer.Physics:Teleport(dest:Get())
-						elseif act.doer.Transform ~= nil then
-							act.doer.Transform:SetPosition(dest:Get())
-						end
-					end
-				end
-			end)
-			return true
-        end
-        act.doer.sg:GoToState("idle")
-    end
-end
-
 local function select(inst, doer, actions, right)
-	if inst:HasTag("teleporter") then-- and inst.islinked:value() then
-		--table.insert(actions, ACTIONS.JUMPIN)
-		table.insert(actions, ACTIONS.INDEXG)
+	if inst:HasTag("teleporter") and inst.islinked:value() then
+		table.insert(actions, ACTIONS.SELECTG)
     end
 end
 

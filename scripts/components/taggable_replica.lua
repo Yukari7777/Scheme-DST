@@ -6,6 +6,7 @@ local Taggable = Class(function(self, inst)
     self.screen = nil
     self.opentask = nil
 	self._serializeddata = net_string(inst.GUID, "taggable._info") -- this is readonly.
+	self.index = net_byte(inst.GUID, "taggable.index")
 
     if TheWorld.ismastersim then
         self.classified = SpawnPrefab("taggable_classified")
@@ -110,15 +111,16 @@ function Taggable:SelectPopup(doer)
     end
 end
 
-function Taggable:DoneAction(doer, text)
+function Taggable:DoAction(doer, text, index)
     --NOTE: text may be network data, so enforcing length is
     --      NOT redundant in order for rendering to be safe.
-    if self.inst.components.taggable ~= nil then
-        self.inst.components.taggable:DoneAction(doer, text)
-    elseif self.classified ~= nil and doer == ThePlayer
-        and (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH / 4) then
-        SendModRPCToServer(MOD_RPC["scheme"]["write"], self.inst, text)
-    end
+	if self.inst.components.taggable ~= nil then
+		self.inst.components.taggable:DoAction(doer, text, index)
+	elseif index ~= nil then --Some.. bad example of implementing overload
+		SendModRPCToServer(MOD_RPC["scheme"]["teleport"], index, self.inst)
+	elseif self.classified ~= nil and doer == ThePlayer and (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH / 4) then
+		SendModRPCToServer(MOD_RPC["scheme"]["write"], self.inst, text)
+	end
 end
 
 function Taggable:Remove(doer)

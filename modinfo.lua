@@ -58,11 +58,11 @@ configuration_options = {
 		default = 5,
 	},
 
-	{
-		name = "permission",
-		label = "Global permission level",
-		hover = "0 = Everyone can use or modify.[see mod page for more info]\n1 = Everyone can use, cannot modify.\n2 = Only allowed user can use or modify.\n3 = Only allowed user can use, cannot modify.\n4 = Only original owner can only use.",
-		options = GPL,
-		default = 1,
-	},
+--	{
+--		name = "permission",
+--		label = "Global permission level",
+--		hover = "0 = Everyone can use or modify.[see mod page for more info]\n1 = Everyone can use, cannot modify.\n2 = Only allowed user can use or modify.\n3 = Only allowed user can use, cannot modify.\n4 = Only original owner can only use.",
+--		options = GPL,
+--		default = 1,
+--	},
 }

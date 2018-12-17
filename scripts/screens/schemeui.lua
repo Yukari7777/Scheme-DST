@@ -3,24 +3,6 @@ local Widget = require "widgets/widget"
 local Text = require "widgets/text"
 local TEMPLATES = require "widgets/redux/templates"
 
-local function MakeImgButton(parent, xPos, yPos, text, onclick, style, image)
-
-    local btn
-    if not style or style == "large" then
-        btn = parent:AddChild(TEMPLATES.StandardButton(onclick, text))
-    elseif style == "icon" then
-        btn = parent:AddChild(TEMPLATES.IconButton("images/button_icons.xml", image..".tex", text, false, false, onclick, {offset_y = 45}))
-    elseif style == "icontext" then
-        btn = parent:AddChild(TEMPLATES.StandardButton(onclick, text, {200, 60}, {"images/button_icons.xml", image..".tex"}))
-    end
-
-    btn:SetPosition(xPos, yPos)
-
-    return btn
-end
-
-local INITIAL_REFRESH_INTERVAL = .5
-
 local SchemeUI = Class(Screen, function(self, owner, attach)
     Screen._ctor(self, "SchemeUI")
 
@@ -37,19 +19,11 @@ local SchemeUI = Class(Screen, function(self, owner, attach)
     self:SetVAnchor(ANCHOR_MIDDLE)
     self:SetHAnchor(ANCHOR_MIDDLE)
 
-    self.scalingroot = self:AddChild(Widget("travelablewidgetscalingroot"))
+    self.scalingroot = self:AddChild(Widget("schemeuiscalingroot"))
     self.scalingroot:SetScale(TheFrontEnd:GetHUDScale())
 
-    self.inst:ListenForEvent("continuefrompause", function()
-        if self.isopen then
-            self.scalingroot:SetScale(TheFrontEnd:GetHUDScale())
-        end
-    end, TheWorld)
-    self.inst:ListenForEvent("refreshhudsize", function(hud, scale)
-        if self.isopen then
-            self.scalingroot:SetScale(scale)
-        end
-    end, owner.HUD.inst)
+    self.inst:ListenForEvent("continuefrompause", function() if self.isopen then self.scalingroot:SetScale(TheFrontEnd:GetHUDScale()) end end, TheWorld)
+    self.inst:ListenForEvent("refreshhudsize", function(hud, scale) if self.isopen then self.scalingroot:SetScale(scale) end end, owner.HUD.inst)
 
     self.root = self.scalingroot:AddChild(TEMPLATES.ScreenRoot("root"))
 
@@ -61,80 +35,78 @@ local SchemeUI = Class(Screen, function(self, owner, attach)
     self.black:SetHAnchor(ANCHOR_MIDDLE)
     self.black:SetScaleMode(SCALEMODE_FILLSCREEN)
     self.black:SetTint(0, 0, 0, 0)
-    self.black.OnMouseButton = function()
-        self:OnCancel()
-    end
+    self.black.OnMouseButton = function() self:OnCancel() end
 
-	self.time_to_refresh = INITIAL_REFRESH_INTERVAL
-    self.destspanel = self.root:AddChild(TEMPLATES.RectangleWindow(350, 550))
+    self.destspanel = self.root:AddChild(TEMPLATES.RectangleWindow(240, 320))
     self.destspanel:SetPosition(0, 25)
 
---    self.current = self.destspanel:AddChild(Text(BODYTEXTFONT, 35))
---    self.current:SetPosition(0, 250, 0)
---    self.current:SetRegionSize(350, 50)
---    self.current:SetHAlign(ANCHOR_MIDDLE)
-
-	self.refresh_button = MakeImgButton(self.root, 185, -315, "Refresh", function() self:Refresh() end, "icontext", "refresh")
-	-- 함수 안고치면 병신
-
-    self.cancelbutton = self.destspanel:AddChild(TEMPLATES.StandardButton( function() self:OnCancel() end, "Cancel", {120, 40}))
-    self.cancelbutton:SetPosition(0, -250)
+	self.title = self.destspanel:AddChild(Text(BODYTEXTFONT, 32))
+	self.title:SetString("Select destination")
+	self.title:SetPosition(0, 130)
 
 	self.desttabledirty = {}
 	self.destdata = {}
 	self.destitem = {}
 
-	local function ScrollWidgetsCtor(context, index)
-        local widget = Widget("widget-" .. index)
+	self.refresh_button = self.destspanel:AddChild(TEMPLATES.StandardButton(function() self:Refresh() end, "refresh", {120, 40}, {"images/button_icons.xml", "refresh.tex"}))
+	self.refresh_button:SetPosition(80, -200)
 
-        widget:SetOnGainFocus( function() self.scroll_list:OnWidgetFocus(widget) end )
-
-        widget.destitem = widget:AddChild(self:DestListItem())
-        local dest = widget.destitem
-
-        widget.focus_forward = dest
-
-        return widget
-    end
-
-	local function ApplyDataToWidget(context, widget, data, index)
-        widget.data = data
-        widget.destitem:Hide()
-        if not data then
-            widget.focus_forward = nil
-            return
-        end
-
-        widget.focus_forward = widget.destitem
-        widget.destitem:Show()
-
-        local dest = widget.destitem
-
-        dest:SetInfo(data.info)
-    end
-
-	self.scroll_list = self.destspanel:AddChild(TEMPLATES.ScrollingGrid(self.destdata, {
-        context = {},
-        widget_width = 350,
-        widget_height = 90,
-        num_visible_rows = 5,
-        num_columns = 1,
-        item_ctor_fn = ScrollWidgetsCtor,
-        apply_fn = ApplyDataToWidget,
-        scrollbar_offset = 10,
-        scrollbar_height_offset = -60,
-        peek_percent = 0, -- may init with few clientmods, but have many servermods.
-        allow_bottom_empty_row = true -- it's hidden anyway
-	}))
-    self.scroll_list:SetPosition(0, 0)
-    self.scroll_list:SetFocusChangeDir(MOVE_DOWN, self.cancelbutton)
-    self.cancelbutton:SetFocusChangeDir(MOVE_UP, self.scroll_list)
+    self.cancelbutton = self.destspanel:AddChild(TEMPLATES.StandardButton(function() self:OnCancel() end, "Cancel", {120, 40}))
+    self.cancelbutton:SetPosition(-80, -200)
 
 	self:Refresh()
     self:Show()
     self.default_focus = self.scroll_list
     self.isopen = true
 end)
+
+function SchemeUI:UpdateData()
+	local function ScrollWidgetsCtor(context, index)
+        local item = Widget("item-"..index)
+
+		item.button = item:AddChild(TEMPLATES.ListItemBackground(340, 30, function() end))
+		item.button.move_on_click = true
+
+		item.name = item:AddChild(Text(BODYTEXTFONT, 20))
+		item.name:SetVAlign(ANCHOR_MIDDLE)
+		item.name:SetHAlign(ANCHOR_LEFT)
+		item.name:SetPosition(0, 0, 5)
+		item.name:SetRegionSize(220, 30)
+
+		item.focus_forward = item.button
+
+        item:SetOnGainFocus(function() self.scroll_list:OnWidgetFocus(item) end)
+
+        return item
+    end
+
+	local function ApplyDataToWidget(context, item, data, index)
+		if data ~= nil then
+			item.name:SetString(data.text)
+			item.name:SetColour(1, 1, 1, 1)
+			item.button:SetOnClick(function() self:OnSelected(data.index) end)
+		else
+			item.button:SetOnClick(nil)
+		end
+    end
+
+	self.scroll_list = self.destspanel:AddChild(TEMPLATES.ScrollingGrid(self.destdata, {
+        context = {},
+        widget_width = 250,
+        widget_height = 30,
+        num_visible_rows = 8,
+        num_columns = 1,
+        item_ctor_fn = ScrollWidgetsCtor,
+        apply_fn = ApplyDataToWidget,
+        scrollbar_offset = 10,
+        scrollbar_height_offset = -60,
+        peek_percent = 0,
+        allow_bottom_empty_row = true
+	}))
+    self.scroll_list:SetPosition(0, -20)
+    self.scroll_list:SetFocusChangeDir(MOVE_DOWN, self.cancelbutton)
+    self.cancelbutton:SetFocusChangeDir(MOVE_UP, self.scroll_list)
+end
 
 function SchemeUI:Deserialize()
 	if self.attach == nil then return end
@@ -152,65 +124,41 @@ function SchemeUI:Deserialize()
 		list.text = elements[2]
 		_deserialized[i] = list
 	end
-	
-	for k, v in pairs(_deserialized) do
-		print(k, v)
-	end
-
 	self.desttabledirty = _deserialized
-
 end
 
 function SchemeUI:Refresh()
 	SendModRPCToServer(MOD_RPC["scheme"]["serialize"], self.attach)
-	self.inst:DoTaskInTime(0, function()
-		--wait until serialized data to arrive to replica.
+	self.inst:DoTaskInTime(0.5, function() --wait until serialized data to arrive to replica.
 		self:Deserialize()
-
 		local list = {}
 		for i, v in ipairs(self.desttabledirty) do 
 			local data = {
-				index = v[1],
-				text = v[2]
+				index = v["index"],
+				text = v["text"]
 			}
 
 			table.insert(list, data)
 		end
-		-- 자기자신은 리스트에서 빼기
+		local taggable = self.attach.replica.taggable
+		if taggable ~= nil then -- delete destination itself.
+			table.remove(list, taggable.index:value())
+		end
+
 		self.destdata = list
+		
+		self:UpdateData()
 	end)
 end
 
-function SchemeUI:DestListItem()
-    local dest = Widget("destination")
-
-    local item_width, item_height = 340, 20
-    dest.backing = dest:AddChild( TEMPLATES.ListItemBackground(item_width, item_height, function() end) )
-    dest.backing.move_on_click = true
-
-    dest.name = dest:AddChild(Text(BODYTEXTFONT, 35))
-    dest.name:SetVAlign(ANCHOR_MIDDLE)
-    dest.name:SetHAlign(ANCHOR_LEFT)
-    dest.name:SetPosition(0, 5, 0)
-    dest.name:SetRegionSize(300, 10)
-
-    dest.SetInfo = function(src, info)
-        dest.name:SetColour(0, 1, 0, 0.6)
-        dest.backing:SetOnClick( function() self:Travel(info.index) end )
-    end
-
-    dest.focus_forward = dest.backing
-    return dest
-end
-
-function SchemeUI:Travel(index)
+function SchemeUI:OnSelected(index)
     if not self.isopen then
         return
     end
 
-    local travelable = self.attach.replica.travelable
-    if travelable then
-        travelable:Travel(self.owner, index)
+	local taggable = self.attach.replica.taggable
+    if taggable ~= nil then
+        taggable:DoAction(self.owner, nil, index)
     end
 
     self.owner.HUD:CloseSchemeUI()
@@ -223,7 +171,7 @@ function SchemeUI:OnCancel()
 
 	local taggable = self.attach.replica.taggable
     if taggable ~= nil then
-        taggable:DoneAction(self.owner)
+        taggable:DoAction(self.owner)
     end
 
     self.owner.HUD:CloseSchemeUI()

@@ -22,8 +22,6 @@ local SchemeUI = require "screens/schemeui"
 
 require "class"
 GLOBAL.TUNNELNETWORK = {}
-GLOBAL.TUNNELFIRSTINDEX = nil
-GLOBAL.TUNNELLASTINDEX = nil
 GLOBAL.NUMTUNNEL = 0
 
 AddMinimapAtlas("images/map_icons/minimap_tunnel.xml")
@@ -31,43 +29,6 @@ AddMinimapAtlas("images/map_icons/schemetool.xml")
 AddRecipe("schemetool", {Ingredient("nightmarefuel", 20), Ingredient("townportaltalisman", 10), Ingredient("orangemooneye", 2)}, RECIPETABS.MAGIC, TECH.MAGIC_TWO, nil, nil, nil, nil, nil, "images/inventoryimages/schemetool.xml", "schemetool.tex")
 AddReplicableComponent("taggable")
 ------ Functions ------
-
-RemoveScheme = function(player, target)
-	local scheme = target.components.scheme
-	if scheme ~= nil then
-		if scheme.owner == player.userid or scheme.owner == nil then
-			local DELCOST = GetModConfigData("delcost")
-
-			if player ~= nil then
-				player.SoundEmitter:PlaySound("dontstarve/common/staff_dissassemble")
-		
-				if player.components.sanity ~= nil then
-					player.components.sanity:DoDelta(-DELCOST)
-				end
-			end
-
-			target:Remove()
-		end
-	end
-end
-AddModRPCHandler("scheme", "remove", RemoveScheme)
-
-SetTaggableText = function(player, target, text)
-    local taggable = target.components.taggable
-	local scheme = target.components.scheme
-    if taggable ~= nil then
-		if target.classified.shouldUI:value() then
-			taggable:EndAction()
-		else
-			taggable:DoneAction(player, text)
-		end
-    end
-
-	if scheme ~= nil then
-		scheme:SetOwner(player)
-	end
-end
-AddModRPCHandler("scheme", "write", SetTaggableText)
 
 AddClassPostConstruct("screens/playerhud", function(self, anim, owner)
 	self.ShowTaggableWidget = function(self, taggable, config)

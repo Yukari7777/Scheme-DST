@@ -128,25 +128,45 @@ function Taggable:IsBeingWritten()
     return self.writer ~= nil
 end
 
-function Taggable:DoneAction(doer, _text)
-    --NOTE: text may be network data, so enforcing length is
-    --      NOT redundant in order for rendering to be safe.
-	local text = _text
-	if text == nil or text == "" then --set default text
-		local index = self.inst.components.scheme.index
-		if index ~= nil then
-			text = "#"..index
+function Taggable:DoAction(doer, _text, index) --Some.. bad example of implementing overload
+	if index ~= nil then
+		doer.sg:GoToState("jumpin", { teleporter = doer })
+		doer:DoTaskInTime(0.8, function()
+			self.inst.components.scheme:Activate(doer, index)
+		end)
+		doer:DoTaskInTime(1.5, function() -- Move entities outside of map border inside
+			if not doer:IsOnValidGround() then
+				local dest = GLOBAL.FindNearbyLand(doer:GetPosition(), 8)
+				if dest ~= nil then
+					if doer.Physics ~= nil then
+						doer.Physics:Teleport(dest:Get())
+					elseif act.doer.Transform ~= nil then
+						doer.Transform:SetPosition(dest:Get())
+					end
+				end
+			end
+		end)
+	else
+		local text = _text or self.text
+		if text == nil or text == "" then --set default text
+			local index = self.inst.components.scheme.index
+			if index ~= nil then
+				text = "#"..index
+			end
+		end
+
+		if self.writer == doer and doer ~= nil and
+			--NOTE: text may be network data, so enforcing length is
+			--NOT redundant in order for rendering to be safe.
+			(text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH / 4) then
+			if IsRail() then
+				text = TheSim:ApplyWordFilter(text)
+			end
+			self:SetText(text)
 		end
 	end
 
-    if self.writer == doer and doer ~= nil and
-        (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH / 4) then
-        if IsRail() then
-			text = TheSim:ApplyWordFilter(text)
-		end
-        self:SetText(text)
-        self:EndAction()
-    end
+	self:EndAction()
 end
 
 function Taggable:EndAction()
