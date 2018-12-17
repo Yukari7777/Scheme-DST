@@ -28,9 +28,13 @@ local function fn()
     if TheWorld.ismastersim then
         inst.entity:AddTransform() --So we can follow parent's sleep state
     end
+
     inst.entity:AddNetwork()
     inst.entity:Hide()
     inst:AddTag("CLASSIFIED")
+
+	inst.shouldUI = net_bool(inst.GUID, "taggable.shouldui")
+	inst.shouldUI:set(false)
 
     inst.entity:SetPristine()
 

@@ -26,26 +26,19 @@ local function onremoved(inst, doer)
 end
 
 local function GetDesc(inst, viewer)
-	local name = inst.components.taggable:GetText() or "#"..inst.components.scheme.index
-	local pointer = inst.components.scheme.pointer
-	local destination = "\nIt is not connected."
+	local index = inst.components.scheme.index or "ERROR"
+	local text = inst.components.taggable:GetText() or "UNNAMED INDEX "..index
 
-	if pointer ~= nil then
-		local destname = _G.TUNNELNETWORK[pointer].inst.components.taggable:GetText() or "#"..pointer
-		destination = destname ~= nil and "\nconnected to\n"..destname
-	end
-
-	if name == "#1" and pointer == nil and _G.TUNNELFIRSTINDEX == nil then
+	if text == "#1" and _G.TUNNELFIRSTINDEX == nil then
 		return GetDescription(viewer, inst)
 	end
 
-	return string.format( name..destination )
+	return string.format( text )
 end
 
 local function onaccept(inst, giver, item)
-	if inst.components.scheme.pointer == nil then return false end -- It will just disappeared.
-    inst.components.inventory:DropItem(item)
-    inst.components.scheme:Activate(item)
+	-- 소리나게
+	if inst.components.scheme.pointer == nil then return false end
 end
 
 local function fn()
@@ -83,18 +76,18 @@ local function fn()
 
 	inst:AddComponent("scheme")
 
-	inst:AddComponent("playerprox")
-	inst.components.playerprox:SetDist(5,5)
-	inst.components.playerprox.onnear = function()
-		if inst.components.scheme:IsConnected() and not (inst.sg.currentstate.name == ("open" or "opening")) then
-			inst.sg:GoToState("opening")
-		end
-	end
-	inst.components.playerprox.onfar = function()
-		if inst.sg.currentstate.name == ("open" or "opening") then
-			inst.sg:GoToState("closing")
-		end
-	end
+--	inst:AddComponent("playerprox")
+--	inst.components.playerprox:SetDist(5,5)
+--	inst.components.playerprox.onnear = function()
+--		if inst.components.scheme:IsConnected() and not (inst.sg.currentstate.name == ("open" or "opening")) then
+--			inst.sg:GoToState("opening")
+--		end
+--	end
+--	inst.components.playerprox.onfar = function()
+--		if inst.sg.currentstate.name == ("open" or "opening") then
+--			inst.sg:GoToState("closing")
+--		end
+--	end
 
 	inst:AddComponent("taggable")
 

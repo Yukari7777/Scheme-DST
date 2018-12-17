@@ -95,10 +95,9 @@ end)
 CONFIGG.priority = 8
 CONFIGG.distance = 2
 
-local INDEXG = AddAction("INDEXG", "Change Destination", function(act)
-	local staff = act.invobject or act.doer.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-	if staff and staff.components.makegate then
-		return staff.components.makegate:Index(act.target, act.doer)
+local INDEXG = AddAction("INDEXG", "Jump In", function(act)
+	if act.target ~= nil and act.target.components.scheme ~= nil then
+		return act.target.components.scheme:SelectDest(act.doer)
 	end
 end)
 
@@ -170,10 +169,6 @@ local function scheme(inst, doer, target, actions, right)
 		if target:HasTag("tunnel") then
 			table.insert(actions, ACTIONS.CONFIGG)
 		end
-	else
-		if target:HasTag("tunnel") then
-			table.insert(actions, ACTIONS.INDEXG)
-		end
 	end
 end
 
@@ -210,9 +205,11 @@ ACTIONS.JUMPIN.fn = function(act)
     end
 end
 
-local function tunnelfn(inst, doer, actions, right)
-	if inst:HasTag("teleporter") and inst.islinked:value() then
-		table.insert(actions, ACTIONS.JUMPIN)
+local function select(inst, doer, actions, right)
+	if inst:HasTag("teleporter") then-- and inst.islinked:value() then
+		--table.insert(actions, ACTIONS.JUMPIN)
+		table.insert(actions, ACTIONS.INDEXG)
     end
 end
-AddComponentAction("SCENE", "scheme", tunnelfn)
+
+AddComponentAction("SCENE", "scheme", select)

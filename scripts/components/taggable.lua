@@ -1,4 +1,4 @@
-local writeables = require"taggables"
+local taggables = require"taggables"
 
 local function gettext(inst, viewer)
     local text = inst.components.taggable:GetText()
@@ -7,6 +7,10 @@ end
 
 local function onbuilt(inst, data)
     inst.components.taggable:BeginWriting(data.spawner)
+end
+
+local function onselect(inst, data)
+    inst.components.taggable:SelectPopup(data.spawner)
 end
 
 --V2C: NOTE: do not add "writeable" tag to pristine state because it is more
@@ -31,16 +35,17 @@ local Taggable = Class(function(self, inst)
 
     self.writer = nil
     self.screen = nil
-
+	
     self.onclosepopups = function(doer)
         if doer == self.writer then
-            self:EndWriting()
+            self:EndAction()
         end
     end
 
     self.generatorfn = nil
 
     self.inst:ListenForEvent("tag", onbuilt)
+    self.inst:ListenForEvent("select", onselect)
 end,
 nil,
 {
@@ -87,6 +92,22 @@ end
 
 function Taggable:BeginWriting(doer)
     if self.writer == nil then
+		self.inst.classified.shouldUI:set(false)
+        self.inst:StartUpdatingComponent(self)
+
+        self.writer = doer
+        self.inst:ListenForEvent("ms_closepopups", self.onclosepopups, doer)
+        self.inst:ListenForEvent("onremove", self.onclosepopups, doer)
+
+        if doer.HUD ~= nil then -- Non-deicated-No-cave server
+            self.screen = taggables.makescreen(self.inst, doer)
+        end
+    end
+end
+
+function Taggable:SelectPopup(doer)
+    if self.writer == nil then
+		self.inst.classified.shouldUI:set(true)
         self.inst:StartUpdatingComponent(self)
 
         self.writer = doer
@@ -94,7 +115,7 @@ function Taggable:BeginWriting(doer)
         self.inst:ListenForEvent("onremove", self.onclosepopups, doer)
 
         if doer.HUD ~= nil then
-            self.screen = writeables.makescreen(self.inst, doer)
+            self.screen = doer.HUD:ShowSchemeUI(self.inst)
         end
     end
 end
@@ -107,25 +128,34 @@ function Taggable:IsBeingWritten()
     return self.writer ~= nil
 end
 
-function Taggable:Write(doer, text)
+function Taggable:DoneAction(doer, _text)
     --NOTE: text may be network data, so enforcing length is
     --      NOT redundant in order for rendering to be safe.
+	local text = _text
+	if text == nil or text == "" then --set default text
+		local index = self.inst.components.scheme.index
+		if index ~= nil then
+			text = "#"..index
+		end
+	end
+
     if self.writer == doer and doer ~= nil and
         (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH / 4) then
         if IsRail() then
 			text = TheSim:ApplyWordFilter(text)
 		end
         self:SetText(text)
-        self:EndWriting()
+        self:EndAction()
     end
 end
 
-function Taggable:EndWriting()
+function Taggable:EndAction()
     if self.writer ~= nil then
         self.inst:StopUpdatingComponent(self)
 
         if self.screen ~= nil then
             self.writer.HUD:CloseTaggableWidget()
+            self.writer.HUD:CloseSchemeUI()
             self.screen = nil
         end
 
@@ -167,18 +197,19 @@ function Taggable:OnUpdate(dt)
             self.writer.components.rider:IsRiding())
         or not (self.writer:IsNear(self.inst, 3) and
                 CanEntitySeeTarget(self.writer, self.inst)) then
-        self:EndWriting()
+        self:EndAction()
     end
 end
 
 --------------------------------------------------------------------------
 
 function Taggable:OnRemoveFromEntity()
-    self:EndWriting()
+    self:EndAction()
     self.inst:RemoveTag("writeable")
     self.inst:RemoveEventCallback("tag", onbuilt)
+	self.inst:RemoveEventCallback("select", onselect)
 end
 
-Taggable.OnRemoveEntity = Taggable.EndWriting
+Taggable.OnRemoveEntity = Taggable.EndAction
 
 return Taggable

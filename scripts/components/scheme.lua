@@ -204,6 +204,13 @@ function scheme:Connect()
 	self:Target(pointer)
 end
 
+function scheme:SelectDest(caster)
+	self.inst.sg:GoToState("opening")
+	self.inst:PushEvent("select", {spawner = caster})
+
+	return true
+end
+
 function scheme:InitGate()
 	self:AddToNetwork()
 	if self.pointer ~= nil then

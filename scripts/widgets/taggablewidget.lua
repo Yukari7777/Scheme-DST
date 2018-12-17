@@ -25,9 +25,9 @@ local function onaccept(inst, doer, widget)
         return
     end
 
-    local writeable = inst.replica.taggable
-    if writeable ~= nil then
-        writeable:Write(doer, msg)
+    local taggable = inst.replica.taggable
+    if taggable ~= nil then
+        taggable:DoneAction(doer, msg)
     end
 
     if widget.config.acceptbtn.cb ~= nil then
@@ -43,9 +43,9 @@ local function onmiddle(inst, doer, widget)
     end
     --print("OnMiddle",inst,doer,widget)
 
-	local writeable = inst.replica.taggable
-    if writeable ~= nil then
-        writeable:Remove(doer)
+	local taggable = inst.replica.taggable
+    if taggable ~= nil then
+        taggable:Remove(doer)
     end
 
     doer.HUD:CloseTaggableWidget()
@@ -57,9 +57,9 @@ local function oncancel(inst, doer, widget)
     end
     --print("OnCancel",inst,doer,widget)
 
-    local writeable = inst.replica.taggable
-    if writeable ~= nil then
-        writeable:Write(doer, nil)
+    local taggable = inst.replica.taggable
+    if taggable ~= nil then
+        taggable:DoneAction(doer)
     end
 
     if widget.config.cancelbtn.cb ~= nil then
@@ -69,11 +69,11 @@ local function oncancel(inst, doer, widget)
     doer.HUD:CloseTaggableWidget()
 end
 
-local TaggableWidget = Class(Screen, function(self, owner, writeable, config)
+local TaggableWidget = Class(Screen, function(self, owner, taggable, config)
     Screen._ctor(self, "SignWriter")
 
     self.owner = owner
-    self.writeable = writeable
+    self.taggable = taggable
     self.config = config
 
     self.isopen = false
@@ -110,21 +110,12 @@ local TaggableWidget = Class(Screen, function(self, owner, writeable, config)
     self.black:SetHAnchor(ANCHOR_MIDDLE)
     self.black:SetScaleMode(SCALEMODE_FILLSCREEN)
     self.black:SetTint(0, 0, 0, 0)
-    self.black.OnMouseButton = function() oncancel(self.writeable, self.owner, self) end
+    self.black.OnMouseButton = function() oncancel(self.taggable, self.owner, self) end
 
     self.bganim = self.root:AddChild(UIAnim())
     self.bganim:SetScale(1, 1, 1)
     self.bgimage = self.root:AddChild(Image())
     self.bganim:SetScale(1, 1, 1)
-
-    --self.title = self.root:AddChild(Text(BUTTONFONT, 50))
-    --self.title:SetPosition(0, 70, 0)
-    --self.title:SetColour(0, 0, 0, 1)
-    --self.title:SetString(self.config.prompt)
-
-    --self.edit_text_bg = self.root:AddChild(Image("images/textboxes.xml", "textbox_long.tex"))
-    --self.edit_text_bg:SetPosition(0, 5, 0)
-    --self.edit_text_bg:ScaleToSize(480, 50)
 
     self.edit_text = self.root:AddChild(TextEdit(BUTTONFONT, 50, ""))
     self.edit_text:SetColour(0, 0, 0, 1)
@@ -133,7 +124,7 @@ local TaggableWidget = Class(Screen, function(self, owner, writeable, config)
     self.edit_text:SetRegionSize(430, 160)
     self.edit_text:SetHAlign(ANCHOR_LEFT)
     self.edit_text:SetVAlign(ANCHOR_TOP)
-    --self.edit_text:SetFocusedImage(self.edit_text_bg, "images/textboxes.xml", "textbox_long_over.tex", "textbox_long.tex")
+
     self.edit_text:SetTextLengthLimit(MAX_WRITEABLE_LENGTH / 4)
     self.edit_text:EnableWordWrap(true)
     self.edit_text:EnableWhitespaceWrap(true)
@@ -141,11 +132,11 @@ local TaggableWidget = Class(Screen, function(self, owner, writeable, config)
     self.edit_text:EnableScrollEditWindow(false)
 
     self.buttons = {}
-    table.insert(self.buttons, { text = config.cancelbtn.text, cb = function() oncancel(self.writeable, self.owner, self) end, control = config.cancelbtn.control })
+    table.insert(self.buttons, { text = config.cancelbtn.text, cb = function() oncancel(self.taggable, self.owner, self) end, control = config.cancelbtn.control })
     if config.middlebtn ~= nil then
-		table.insert(self.buttons, { text = config.middlebtn.text, cb = function() onmiddle(self.writeable, self.owner, self) end, control = config.middlebtn.control })
+		table.insert(self.buttons, { text = config.middlebtn.text, cb = function() onmiddle(self.taggable, self.owner, self) end, control = config.middlebtn.control })
     end
-    table.insert(self.buttons, { text = config.acceptbtn.text, cb = function() onaccept(self.writeable, self.owner, self) end, control = config.acceptbtn.control })
+    table.insert(self.buttons, { text = config.acceptbtn.text, cb = function() onaccept(self.taggable, self.owner, self) end, control = config.acceptbtn.control })
 
     for i, v in ipairs(self.buttons) do
         if v.control ~= nil then
@@ -172,7 +163,7 @@ local TaggableWidget = Class(Screen, function(self, owner, writeable, config)
         if type(self.config.defaulttext) == "string" then
             defaulttext = self.config.defaulttext
         elseif type(self.config.defaulttext) == "function" then
-            defaulttext = self.config.defaulttext(self.writeable, self.owner)
+            defaulttext = self.config.defaulttext(self.taggable, self.owner)
         end
     end
 
@@ -226,13 +217,7 @@ end
 
 function TaggableWidget:Close()
     if self.isopen then
-        --if self.container ~= nil then
-            --if self.owner ~= nil and self.owner.components.playeractionpicker ~= nil then
-                --self.owner.components.playeractionpicker:UnregisterContainer(self.container)
-            --end
-        --end
-
-        self.writeable = nil
+        self.taggable = nil
 
         if self.bgimage.texture then
             self.bgimage:Hide()
@@ -241,10 +226,8 @@ function TaggableWidget:Close()
         end
 
         self.black:Kill()
-        --self.title:Kill()
         self.edit_text:SetEditing(false)
         self.edit_text:Kill()
-        --self.edit_text_bg:Kill()
         self.menu:Kill()
 
         self.isopen = false
