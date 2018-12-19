@@ -7,6 +7,8 @@ local Taggable = Class(function(self, inst)
     self.opentask = nil
 	self._serializeddata = net_string(inst.GUID, "taggable._info") -- this is readonly.
 	self.index = net_byte(inst.GUID, "taggable.index")
+	self.numalter = net_byte(inst.GUID, "taggable.numalter")
+	self.numsanity = net_byte(inst.GUID, "taggable.numsanity")
 
     if TheWorld.ismastersim then
         self.classified = SpawnPrefab("taggable_classified")

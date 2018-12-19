@@ -11,20 +11,20 @@ end)
 function scheme:OnActivate(other, doer) 
 	other.sg:GoToState("open")
 	other:DoTaskInTime(1.5, function()
-		if other.components.scheme.pointer == nil then
-			other.sg:GoToState("closing")
-		end
+		other.sg:GoToState("closing")
 	end)
 end
 
 function scheme:Activate(doer, index)
 	local index = tonumber(index)
-	if not self:IsConnected(index) then
-		return
-	end
+	if not self:IsConnected(index) then return end
+	local numalter, numsanity = _G.GetGCost(doer, false)
+	if doer.components.sanity ~= nil and doer.components.sanity.current < numsanity then return doer.components.talker:Say(GetString(doer.prefab, "LOWUSEGSANITY")) end
+
 	
 	if doer:HasTag("player") then
 		doer.SoundEmitter:KillSound("wormhole_travel")
+		_G.ConsumeGateCost(doer, numalter, numsanity)
 	end
 
 	self:OnActivate(self:GetTarget(index), doer)
@@ -90,8 +90,7 @@ function scheme:Teleport(obj, index)
 	local offset = 2.0
 	local angle = math.random() * 360
 	local target_x, target_y, target_z = target.Transform:GetWorldPosition()
-	local modname = KnownModIndex:GetModActualName("Scheme")
-	local cost = GetModConfigData("usecost", modname)
+	
 	target_x = target_x + math.sin(angle)*offset
 	target_z = target_z + math.cos(angle)*offset
 	if obj.Physics then
@@ -101,9 +100,6 @@ function scheme:Teleport(obj, index)
 	end
 	if obj.components.talker ~= nil then
         obj.components.talker:ShutUp()
-    end
-    if obj.components.sanity ~= nil and cost ~= 0 then
-        obj.components.sanity:DoDelta(-cost)
     end
 end
 
@@ -141,7 +137,6 @@ function scheme:AddToNetwork()
 end
 
 function scheme:Disconnect(index)
-	self.index = nil
 	_G.TUNNELNETWORK[index] = nil
 	_G.NUMTUNNEL = _G.NUMTUNNEL - 1
 end

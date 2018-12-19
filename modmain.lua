@@ -10,6 +10,11 @@ Assets = {
 	Asset( "IMAGE", "images/map_icons/schemetool.tex" ),
 	Asset( "ATLAS", "images/map_icons/schemetool.xml" ),
 
+	Asset( "IMAGE", "images/inventoryimages/schemetool.tex" ),
+	Asset( "ATLAS", "images/inventoryimages/schemetool.xml" ),
+	Asset( "IMAGE", "images/inventoryimages/sanitypanel.tex" ),
+	Asset( "ATLAS", "images/inventoryimages/sanitypanel.xml" ),
+
 	Asset( "ANIM" , "anim/ui_board_5x1.zip"),
 }
 
@@ -21,14 +26,29 @@ local TaggableWidget = require "widgets/taggablewidget"
 local SchemeUI = require "screens/schemeui"
 
 require "class"
-GLOBAL.TUNNELNETWORK = {}
-GLOBAL.NUMTUNNEL = 0
 
 AddMinimapAtlas("images/map_icons/minimap_tunnel.xml")
 AddMinimapAtlas("images/map_icons/schemetool.xml")
 AddRecipe("schemetool", {Ingredient("nightmarefuel", 20), Ingredient("townportaltalisman", 10), Ingredient("orangemooneye", 2)}, RECIPETABS.MAGIC, TECH.MAGIC_TWO, nil, nil, nil, nil, nil, "images/inventoryimages/schemetool.xml", "schemetool.tex")
 AddReplicableComponent("taggable")
 ------ Functions ------
+local Language =  GetModConfigData("language")
+GLOBAL.SCHEME_LANGUAGE = "en"
+if Language == "AUTO" then
+	local KnownModIndex = GLOBAL.KnownModIndex
+	for _, moddir in ipairs(KnownModIndex:GetModsToLoad()) do
+		local modname = KnownModIndex:GetModInfo(moddir).name
+		if modname == "한글 모드 서버 버전" or modname == "한글 모드 클라이언트 버전" then 
+			GLOBAL.SCHEME_LANGUAGE = "kr"
+--		elseif modname == "Chinese modname Pack" or modname == "Chinese Plus" then
+--			GLOBAL.SCHEME_LANGUAGE = "ch"
+--		elseif modname == "Russian modname Pack" or modname == "Russification Pack for DST" or modname == "Russian For Mods (Client)" then
+--			GLOBAL.SCHEME_LANGUAGE = "ru"
+		end 
+	end 
+else
+	GLOBAL.SCHEME_LANGUAGE = Language
+end
 
 AddClassPostConstruct("screens/playerhud", function(self, anim, owner)
 	self.ShowTaggableWidget = function(self, taggable, config)
@@ -70,6 +90,6 @@ AddClassPostConstruct("screens/playerhud", function(self, anim, owner)
 	end
 end)
 
+modimport "scripts/strings_scheme.lua"
 modimport "scripts/schememanager.lua"
 modimport "scripts/actions_scheme.lua"
-modimport "scripts/strings_scheme.lua"

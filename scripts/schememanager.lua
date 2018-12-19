@@ -1,15 +1,83 @@
+GLOBAL.TUNNELNETWORK = {}
+GLOBAL.NUMTUNNEL = 0
+local alterprefab = GetModConfigData("alter")
+local altervalue = GetModConfigData("alterval")
+
+local function FindItemInSlots(TheSlot, num)
+	for k, v in pairs(TheSlot) do
+		if v.prefab == alterprefab then
+			num = num + (v.components.stackable ~= nil and v.components.stackable:StackSize() or 1)
+		end
+	end
+	return num
+end
+
+local function ConsumeItemInSlots(TheSlot, num)
+	for k, v in pairs(TheSlot) do
+		if v.prefab == alterprefab then
+			local stacksize = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+			local numtoremove = math.min(stacksize, num)
+			if numtoremove > 0 then
+				v.components.stackable:Get(numtoremove):Remove()
+			end
+			num = num - numtoremove
+		end
+	end
+	return num
+end
+
+GLOBAL.GetGCost = function(player, isspawn, inst)
+	local _COST = isspawn and GetModConfigData("spawncost") or GetModConfigData("usecost")
+	local maxuse = math.floor(_COST / altervalue)
+	local numalter = 0
+	local numtouse = 0
+	local leftover = _COST
+
+	if player:HasTag("yakumoyukari") then --temp
+		numalter = 0
+		leftover = 0
+	elseif alterprefab ~= "noalter" then
+		numalter = FindItemInSlots(player.replica.inventory:GetItems(), numalter)
+		for k, v in pairs(player.replica.inventory:GetEquips()) do
+			if type(v) == "table" and v.components.container ~= nil then
+				numalter = FindItemInSlots(player.replica.inventory:GetEquippedItem(k).components.container.slots, numalter)
+			end
+		end
+		numtouse = math.min(maxuse, numalter)
+		leftover = leftover - numtouse * altervalue
+	end
+	if inst ~= nil then --If this called by RPC,
+		inst.replica.taggable.numalter:set(numtouse)
+		inst.replica.taggable.numsanity:set(leftover)
+	else
+		return numtouse, leftover
+	end
+end
+AddModRPCHandler("scheme", "getcost", GLOBAL.GetGCost)
+
+GLOBAL.ConsumeGateCost = function(player, numitem, numsanity)
+	local leftover = numitem
+	if leftover ~= 0 then
+		leftover = ConsumeItemInSlots(player.replica.inventory:GetItems(), leftover)
+		for k, v in pairs(player.replica.inventory:GetEquips()) do
+			if type(v) == "table" and v.components.container ~= nil then
+				leftover = ConsumeItemInSlots(player.replica.inventory:GetEquippedItem(k).components.container.slots, leftover)
+			end
+		end
+	end
+
+	if player.components.sanity ~= nil then
+		player.components.sanity:DoDelta(-numsanity)
+	end
+end
+
 local function RemoveScheme(player, target)
 	local scheme = target.components.scheme
 	if scheme ~= nil then
 		if scheme.owner == player.userid or scheme.owner == nil then
-			local DELCOST = GetModConfigData("delcost")
-
 			if player ~= nil then
+				--scheme remove
 				player.SoundEmitter:PlaySound("dontstarve/common/staff_dissassemble")
-		
-				if player.components.sanity ~= nil then
-					player.components.sanity:DoDelta(-DELCOST)
-				end
 			end
 
 			target:Remove()
@@ -62,21 +130,5 @@ local function DoTeleportWithIndex(player, index, inst)
 	if taggable ~= nil then
 		taggable:DoAction(player, nil, index)
 	end
-	player.sg:GoToState("jumpin", { teleporter = player })
-	player:DoTaskInTime(0.8, function()
-		inst.components.scheme:Activate(player, index)
-	end)
-	player:DoTaskInTime(1.5, function() -- Move entities outside of map border inside
-		if not player:IsOnValidGround() then
-			local dest = GLOBAL.FindNearbyLand(player:GetPosition(), 8)
-			if dest ~= nil then
-				if player.Physics ~= nil then
-					player.Physics:Teleport(dest:Get())
-				elseif act.doer.Transform ~= nil then
-					player.Transform:SetPosition(dest:Get())
-				end
-			end
-		end
-	end)
 end
 AddModRPCHandler("scheme", "teleport", DoTeleportWithIndex)

@@ -19,9 +19,10 @@ local function onload(inst, data)
 	end
 end
 
-local function onremoved(inst, doer)
-	if inst.components.scheme ~= nil then
-		inst.components.scheme:Disconnect(inst.components.scheme.index)
+local function onremove(inst)
+	local scheme = inst.components.scheme
+	if scheme ~= nil then
+		scheme:Disconnect(scheme.index)
 	end
 end
 
@@ -29,7 +30,7 @@ local function GetDesc(inst, viewer)
 	local index = inst.components.scheme.index or "ERROR"
 	local text = inst.components.taggable:GetText() or "UNNAMED INDEX "..index
 
-	if text == "#1" and _G.TUNNELFIRSTINDEX == nil then
+	if text == "#1" and _G.NUMTUNNEL == 1 then
 		return GetDescription(viewer, inst)
 	end
 
@@ -37,8 +38,7 @@ local function GetDesc(inst, viewer)
 end
 
 local function onaccept(inst, giver, item)
-	-- 소리나게
-	if inst.components.scheme.pointer == nil then return false end
+	giver:PushEvent("makefriend")
 end
 
 local function fn()
@@ -85,9 +85,9 @@ local function fn()
     inst.components.trader.onaccept = onaccept
     inst.components.trader.deleteitemonaccept = false
 
-	inst.OnRemoveEntity = onremoved
 	inst.OnSave = onsave
 	inst.OnLoad = onload
+	inst.OnRemoveEntity = onremove
 
     return inst
 end

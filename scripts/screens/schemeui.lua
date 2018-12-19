@@ -2,6 +2,8 @@ local Screen = require "widgets/screen"
 local Widget = require "widgets/widget"
 local Text = require "widgets/text"
 local TEMPLATES = require "widgets/redux/templates"
+local modname = KnownModIndex:GetModActualName("Scheme")
+local alter = GetModConfigData("alter", modname)
 
 local SchemeUI = Class(Screen, function(self, owner, attach)
     Screen._ctor(self, "SchemeUI")
@@ -25,6 +27,13 @@ local SchemeUI = Class(Screen, function(self, owner, attach)
     self.inst:ListenForEvent("continuefrompause", function() if self.isopen then self.scalingroot:SetScale(TheFrontEnd:GetHUDScale()) end end, TheWorld)
     self.inst:ListenForEvent("refreshhudsize", function(hud, scale) if self.isopen then self.scalingroot:SetScale(scale) end end, owner.HUD.inst)
 
+	self.desttabledirty = {}
+	self.destdata = {}
+	self.destitem = {}
+
+	self.numalter = 0
+	self.numsanity = 0
+
     self.root = self.scalingroot:AddChild(TEMPLATES.ScreenRoot("root"))
 
     -- secretly this thing is a modal Screen, it just LOOKS like a widget
@@ -37,28 +46,51 @@ local SchemeUI = Class(Screen, function(self, owner, attach)
     self.black:SetTint(0, 0, 0, 0)
     self.black.OnMouseButton = function() self:OnCancel() end
 
-    self.destspanel = self.root:AddChild(TEMPLATES.RectangleWindow(240, 320))
+    self.destspanel = self.root:AddChild(TEMPLATES.RectangleWindow(240, 360))
     self.destspanel:SetPosition(0, 25)
 
 	self.title = self.destspanel:AddChild(Text(BODYTEXTFONT, 32))
-	self.title:SetString("Select destination")
-	self.title:SetPosition(0, 130)
+	self.title:SetString(STRINGS.TAGGABLE_SELECT_DESTINATION)
+	self.title:SetPosition(0, 155)
 
-	self.desttabledirty = {}
-	self.destdata = {}
-	self.destitem = {}
+	self.cancelbutton = self.destspanel:AddChild(TEMPLATES.StandardButton(function() self:OnCancel() end, STRINGS.SIGNS.MENU.CANCEL, {120, 40}))
+    self.cancelbutton:SetPosition(-80, -220)
 
-	self.refresh_button = self.destspanel:AddChild(TEMPLATES.StandardButton(function() self:Refresh() end, "refresh", {120, 40}, {"images/button_icons.xml", "refresh.tex"}))
-	self.refresh_button:SetPosition(80, -200)
+	self.refresh_button = self.destspanel:AddChild(TEMPLATES.StandardButton(function() self:Refresh() end, STRINGS.TAGGABLE_REFRESH_BUTTON, {120, 40}, {"images/button_icons.xml", "refresh.tex"}))
+	self.refresh_button:SetPosition(80, -220)
 
-    self.cancelbutton = self.destspanel:AddChild(TEMPLATES.StandardButton(function() self:OnCancel() end, "Cancel", {120, 40}))
-    self.cancelbutton:SetPosition(-80, -200)
+	if alter ~= "noalter" then
+		self.altericon = self.destspanel:AddChild(Image("images/inventoryimages.xml", alter..".tex"))
+		self.altericon:SetPosition(-110, -142)
+		self.altericon:SetSize(40, 40)
+		self.altericon:Hide()
 
-	self:Refresh()
+		self.alternum = self.destspanel:AddChild(Text(BODYTEXTFONT, 20))
+		self.alternum:SetPosition(-75, -145)
+		self.alternum:Hide()
+	end
+
+	self.sanityicon = self.destspanel:AddChild(Image("images/inventoryimages/sanitypanel.xml", "sanitypanel.tex"))
+	self.sanityicon:SetPosition(-40, -145)
+	self.sanityicon:SetSize(35, 35)
+	self.sanityicon:Hide()
+
+	self.sanitynum = self.destspanel:AddChild(Text(BODYTEXTFONT, 20))
+	self.sanitynum:SetPosition(-3, -145)
+	self.sanitynum:Hide()
+
+	self:Initialize()
     self:Show()
     self.default_focus = self.scroll_list
     self.isopen = true
 end)
+
+function SchemeUI:Initialize()
+	self:Refresh()
+	self.inst:DoTaskInTime(1, function() --wait until serialized data to arrive to replica.
+		self:UpdateData()
+	end)
+end
 
 function SchemeUI:UpdateData()
 	local function ScrollWidgetsCtor(context, index)
@@ -103,15 +135,17 @@ function SchemeUI:UpdateData()
         peek_percent = 0,
         allow_bottom_empty_row = true
 	}))
-    self.scroll_list:SetPosition(0, -20)
+    self.scroll_list:SetPosition(-5, 5)
     self.scroll_list:SetFocusChangeDir(MOVE_DOWN, self.cancelbutton)
     self.cancelbutton:SetFocusChangeDir(MOVE_UP, self.scroll_list)
 end
 
 function SchemeUI:Deserialize()
 	if self.attach == nil then return end
-	local taggable = self.attach.replica.taggable
+	local taggable = self.attach and self.attach.replica.taggable
     local _serialized = taggable ~= nil and taggable._serializeddata:value()
+    self.numalter = taggable ~= nil and taggable.numalter:value()
+    self.numsanity = taggable ~= nil and taggable.numsanity:value()
 
 	--assert(not(_serialized == nil or _serialized == ""), "TUNNELNETWORK data deserialization failed. No data recieved.")
 	local _deserialized = {}
@@ -124,11 +158,13 @@ function SchemeUI:Deserialize()
 		list.text = elements[2]
 		_deserialized[i] = list
 	end
+
 	self.desttabledirty = _deserialized
 end
 
 function SchemeUI:Refresh()
 	SendModRPCToServer(MOD_RPC["scheme"]["serialize"], self.attach)
+	SendModRPCToServer(MOD_RPC["scheme"]["getcost"], false, self.attach)
 	self.inst:DoTaskInTime(0.5, function() --wait until serialized data to arrive to replica.
 		self:Deserialize()
 		local list = {}
@@ -140,14 +176,27 @@ function SchemeUI:Refresh()
 
 			table.insert(list, data)
 		end
-		local taggable = self.attach.replica.taggable
+		local taggable = self.attach and self.attach.replica.taggable
 		if taggable ~= nil then -- delete destination itself.
 			table.remove(list, taggable.index:value())
 		end
 
 		self.destdata = list
-		
-		self:UpdateData()
+		if self.scroll_list ~= nil then
+			self.scroll_list:RefreshView()
+		end
+
+		if self.numalter ~= 0 then
+			self.alternum:SetString(": "..self.numalter)
+			self.alternum:Show()
+			self.altericon:Show()
+		else
+			self.sanityicon:SetPosition(-110, -142)
+			self.sanitynum:SetPosition(-73, -142)
+		end
+		self.sanitynum:SetString(": "..self.numsanity)
+		self.sanitynum:Show()
+		self.sanityicon:Show()
 	end)
 end
 
@@ -173,6 +222,7 @@ function SchemeUI:OnCancel()
     if taggable ~= nil then
         taggable:DoAction(self.owner)
     end
+	SendModRPCToServer(MOD_RPC["scheme"]["getcost"], true, self.attach)
 
     self.owner.HUD:CloseSchemeUI()
 end
