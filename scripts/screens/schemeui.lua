@@ -88,11 +88,12 @@ end)
 function SchemeUI:Initialize()
 	self:Refresh()
 	self.inst:DoTaskInTime(1, function() --wait until serialized data to arrive to replica.
-		self:UpdateData()
+		self:InitScroll()
+		self.cancelbutton:SetFocusChangeDir(MOVE_UP, self.scroll_list)
 	end)
 end
 
-function SchemeUI:UpdateData()
+function SchemeUI:InitScroll()
 	local function ScrollWidgetsCtor(context, index)
         local item = Widget("item-"..index)
 
@@ -137,7 +138,6 @@ function SchemeUI:UpdateData()
 	}))
     self.scroll_list:SetPosition(-5, 5)
     self.scroll_list:SetFocusChangeDir(MOVE_DOWN, self.cancelbutton)
-    self.cancelbutton:SetFocusChangeDir(MOVE_UP, self.scroll_list)
 end
 
 function SchemeUI:Deserialize()
@@ -183,7 +183,7 @@ function SchemeUI:Refresh()
 
 		self.destdata = list
 		if self.scroll_list ~= nil then
-			self.scroll_list:RefreshView()
+			self.scroll_list:SetItemsData(self.destdata)
 		end
 
 		if self.numalter ~= 0 then

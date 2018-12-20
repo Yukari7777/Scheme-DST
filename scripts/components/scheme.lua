@@ -12,6 +12,7 @@ function scheme:OnActivate(other, doer)
 	other.sg:GoToState("open")
 	other:DoTaskInTime(1.5, function()
 		other.sg:GoToState("closing")
+		self.inst.sg:GoToState("closing")
 	end)
 end
 
