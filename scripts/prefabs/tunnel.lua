@@ -6,14 +6,12 @@ local assets =
 
 local function onsave(inst, data)
 	data.index = inst.components.scheme.index
-	data.pointer = inst.components.scheme.pointer
 	data.owner = inst.components.scheme.owner
 end
 
 local function onload(inst, data)
 	if data ~= nil then
 		inst.components.scheme.index = data.index
-		inst.components.scheme.pointer = data.pointer
 		inst.components.scheme.owner = data.owner
 		inst.components.scheme:InitGate()
 	end
@@ -37,7 +35,7 @@ local function GetDesc(inst, viewer)
 	return string.format( text )
 end
 
-local function onaccept(inst, giver, item)
+local function onaccept(inst, giver, item) -- Æ¡¿¡¿§
 	giver:PushEvent("makefriend")
 end
 
@@ -83,7 +81,7 @@ local function fn()
 	inst:AddComponent("trader")
     inst.components.trader.acceptnontradable = true
     inst.components.trader.onaccept = onaccept
-    inst.components.trader.deleteitemonaccept = false
+    inst.components.trader.deleteitemonaccept = true
 
 	inst.OnSave = onsave
 	inst.OnLoad = onload

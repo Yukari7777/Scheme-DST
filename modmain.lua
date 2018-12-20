@@ -22,17 +22,18 @@ Assets = {
 local require = GLOBAL.require
 local TECH = GLOBAL.TECH
 local RECIPETABS = GLOBAL.RECIPETABS
+local TheFrontEnd = GLOBAL.TheFrontEnd
 local TaggableWidget = require "widgets/taggablewidget"
 local SchemeUI = require "screens/schemeui"
-local TheFrontEnd = GLOBAL.TheFrontEnd
 
 require "class"
 
 AddMinimapAtlas("images/map_icons/minimap_tunnel.xml")
 AddMinimapAtlas("images/map_icons/schemetool.xml")
-AddRecipe("schemetool", {Ingredient("nightmarefuel", 20), Ingredient("townportaltalisman", 10), Ingredient("orangemooneye", 2)}, RECIPETABS.MAGIC, TECH.MAGIC_TWO, nil, nil, nil, nil, nil, "images/inventoryimages/schemetool.xml", "schemetool.tex")
 AddReplicableComponent("taggable")
+
 ------ Functions ------
+
 local Language =  GetModConfigData("language")
 GLOBAL.SCHEME_LANGUAGE = "en"
 if Language == "AUTO" then
@@ -91,6 +92,9 @@ AddClassPostConstruct("screens/playerhud", function(self, anim, owner)
 	end
 end)
 
+AddRecipe("schemetool", {Ingredient("nightmarefuel", 5), Ingredient("purplegem", 3), Ingredient("orangemooneye", 2)}, RECIPETABS.MAGIC, TECH.MAGIC_TWO, nil, nil, nil, nil, nil, "images/inventoryimages/schemetool.xml", "schemetool.tex")
+
 modimport "scripts/strings_scheme.lua"
 modimport "scripts/schememanager.lua"
-modimport "scripts/actions_scheme.lua"
+modimport "scripts/actions_scheme.lua" -- actions must be loaded before stategraph loads
+modimport "scripts/stategraph_scheme.lua"
