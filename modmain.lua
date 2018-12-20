@@ -58,7 +58,7 @@ AddClassPostConstruct("screens/playerhud", function(self, anim, owner)
 		else
 			self.taggablescreen = TaggableWidget(self.owner, taggable, config)
 			self:OpenScreenUnderPause(self.taggablescreen)
-			if TheFrontEnd:GetActiveScreen() == self.taggablescreen then
+			if TheFrontEnd ~= nil and TheFrontEnd:GetActiveScreen() == self.taggablescreen then
 				-- Have to set editing AFTER pushscreen finishes.
 				self.taggablescreen.edit_text:SetEditing(true)
 			end
