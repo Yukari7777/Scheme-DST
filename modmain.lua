@@ -24,6 +24,7 @@ local TECH = GLOBAL.TECH
 local RECIPETABS = GLOBAL.RECIPETABS
 local TaggableWidget = require "widgets/taggablewidget"
 local SchemeUI = require "screens/schemeui"
+local TheFrontEnd = GLOBAL.TheFrontEnd
 
 require "class"
 

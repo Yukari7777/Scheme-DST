@@ -50,7 +50,7 @@ configuration_options = {
 	{
 		name = "spawncost",
 		label = "Spawn cost(소환 코스트)",
-		hover = "Set sanity cost on creating Scheme Gate.\n스키마 게이트를 소환할 때의 코스트를 설정합니다.",
+		hover = "Set sanity cost on creating Scheme Gate.\n스키마 게이트를 소환할 때의 비용을 설정합니다.",
 		options = spawncost,
 		default = 100,
 	},
@@ -58,7 +58,7 @@ configuration_options = {
 	{
 		name = "usecost",
 		label = "Use cost(사용 코스트)",
-		hover = "Set sanity cost of using Scheme Gate.\n스키마 게이트를 사용할 때의 코스트를 설정합니다.",
+		hover = "Set sanity cost of using Scheme Gate.\n스키마 게이트를 사용할 때의 비용을 설정합니다.",
 		options = usecost,
 		default = 50,
 	},
