@@ -108,7 +108,7 @@ function SchemeUI:InitScroll()
 
 		item.focus_forward = item.button
 
-        item:SetOnGainFocus(function() self.scroll_list:OnWidgetFocus(item) end)
+        item:SetOnGainFocus(function() if self.scroll_list ~= nil then self.scroll_list:OnWidgetFocus(item) end end)
 
         return item
     end
@@ -160,6 +160,7 @@ function SchemeUI:Deserialize()
 	end
 
 	self.desttabledirty = _deserialized
+	-- This has another meaning of dirty, which means not a sorted table.
 end
 
 function SchemeUI:Refresh()
@@ -177,8 +178,12 @@ function SchemeUI:Refresh()
 			table.insert(list, data)
 		end
 		local taggable = self.attach and self.attach.replica.taggable
-		if taggable ~= nil then -- delete destination itself.
-			table.remove(list, taggable.index:value())
+		if taggable ~= nil then -- delete destination towards itself.	
+			for k, v in ipairs(list) do
+				if tonumber(list[k].index) == taggable.index:value() then	
+					table.remove(list, k)
+				end
+			end
 		end
 
 		self.destdata = list

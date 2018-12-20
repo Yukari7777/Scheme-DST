@@ -26,7 +26,7 @@ end
 
 local function GetDesc(inst, viewer)
 	local index = inst.components.scheme.index or "ERROR"
-	local text = inst.components.taggable:GetText() or "UNNAMED INDEX "..index
+	local text = inst.components.taggable:GetText() or "#"..index
 
 	if text == "#1" and _G.NUMTUNNEL == 1 then
 		return GetDescription(viewer, inst)

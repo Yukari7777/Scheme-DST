@@ -78,7 +78,6 @@ local function RemoveScheme(player, target)
 	if scheme ~= nil then
 		if scheme.owner == player.userid or scheme.owner == nil then
 			if player ~= nil then
-				--scheme remove
 				player.SoundEmitter:PlaySound("dontstarve/common/staff_dissassemble")
 			end
 
@@ -114,7 +113,7 @@ local function SerializeSchemeNetworkData(player, tunnel)
 			local index = v.inst.components.scheme.index
 			local text = v.inst.components.taggable.text
 			if text == nil then
-				text = "UNNAMED INDEX #"..v.inst.components.scheme.index
+				text = "#"..v.inst.components.scheme.index
 			end
 			table.insert(list, index.."\t"..text)
 		end

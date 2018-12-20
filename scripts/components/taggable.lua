@@ -204,6 +204,9 @@ function Taggable:EndAction()
         end
         self.screen = nil
     end
+	self.inst:DoTaskInTime(1, function()
+		self.inst.sg:GoToState("closing")
+	end)
 end
 
 --------------------------------------------------------------------------
@@ -214,10 +217,10 @@ function Taggable:OnUpdate(dt)
     if self.writer == nil then
         self.inst:StopUpdatingComponent(self)
     elseif (self.writer.components.rider ~= nil and
-            self.writer.components.rider:IsRiding())
+        self.writer.components.rider:IsRiding())
         or not (self.writer:IsNear(self.inst, 3) and
-                CanEntitySeeTarget(self.writer, self.inst)) then
-        self:EndAction()
+		CanEntitySeeTarget(self.writer, self.inst)) then
+			self:EndAction()
     end
 end
 
