@@ -33,9 +33,9 @@ GLOBAL.GetGCost = function(player, isspawn, inst)
 	local numtouse = 0
 	local leftover = _COST
 
-	if player:HasTag("yakumoyukari") then --temp
+	if player.prefab == "yakumoyukari" then --temp
 		numalter = 0
-		leftover = 0
+		leftover = isspawn and 75 or 0
 	elseif alterprefab ~= "noalter" then
 		numalter = FindItemInSlots(player.replica.inventory:GetItems(), numalter)
 		for k, v in pairs(player.replica.inventory:GetEquips()) do
@@ -48,26 +48,28 @@ GLOBAL.GetGCost = function(player, isspawn, inst)
 	end
 	if inst ~= nil then --If this called by RPC,
 		inst.replica.taggable.numalter:set(numtouse)
-		inst.replica.taggable.numsanity:set(leftover)
+		inst.replica.taggable.numstat:set(leftover)
 	else
 		return numtouse, leftover
 	end
 end
 AddModRPCHandler("scheme", "getcost", GLOBAL.GetGCost)
 
-GLOBAL.ConsumeGateCost = function(player, numitem, numsanity)
-	local leftover = numitem
-	if leftover ~= 0 then
-		leftover = ConsumeItemInSlots(player.replica.inventory:GetItems(), leftover)
+GLOBAL.ConsumeGateCost = function(player, numitem, numstat)
+	local leftoveritem = numitem
+	if leftoveritem ~= 0 then
+		leftoveritem = ConsumeItemInSlots(player.replica.inventory:GetItems(), leftoveritem)
 		for k, v in pairs(player.replica.inventory:GetEquips()) do
 			if type(v) == "table" and v.components.container ~= nil then
-				leftover = ConsumeItemInSlots(player.replica.inventory:GetEquippedItem(k).components.container.slots, leftover)
+				leftoveritem = ConsumeItemInSlots(player.replica.inventory:GetEquippedItem(k).components.container.slots, leftoveritem)
 			end
 		end
 	end
 
-	if player.components.sanity ~= nil then
-		player.components.sanity:DoDelta(-numsanity)
+	if player.components.power ~= nil then
+		player.components.power:DoDelta(-numstat)
+	elseif player.components.sanity ~= nil then
+		player.components.sanity:DoDelta(-numstat)
 	end
 end
 

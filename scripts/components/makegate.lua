@@ -38,9 +38,9 @@ function MakeGate:Teleport(pt, caster)
 end
 
 function MakeGate:Create(pt, caster)
-	local numalter, numsanity = _G.GetGCost(caster, true)
-	if caster.components.sanity ~= nil and math.ceil(caster.components.sanity.current) < numsanity then caster.components.talker:Say(GetString(caster.prefab, "LOWCGSANITY")) return true end
-	_G.ConsumeGateCost(caster, numalter, numsanity)
+	local numalter, numstat = _G.GetGCost(caster, true)
+	if caster.components.sanity ~= nil and math.ceil(caster.components.sanity.current) < numstat then caster.components.talker:Say(GetString(caster.prefab, "LOWCGSANITY")) return true end
+	_G.ConsumeGateCost(caster, numalter, numstat)
 
 	caster.SoundEmitter:PlaySound("dontstarve/common/staff_blink")
 	if caster.components.health then

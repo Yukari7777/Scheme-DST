@@ -32,7 +32,7 @@ local SchemeUI = Class(Screen, function(self, owner, attach)
 	self.destitem = {}
 
 	self.numalter = 0
-	self.numsanity = 0
+	self.numstat = 0
 
     self.root = self.scalingroot:AddChild(TEMPLATES.ScreenRoot("root"))
 
@@ -145,7 +145,7 @@ function SchemeUI:Deserialize()
 	local taggable = self.attach and self.attach.replica.taggable
     local _serialized = taggable ~= nil and taggable._serializeddata:value()
     self.numalter = taggable ~= nil and taggable.numalter:value()
-    self.numsanity = taggable ~= nil and taggable.numsanity:value()
+    self.numstat = taggable ~= nil and taggable.numstat:value()
 
 	--assert(not(_serialized == nil or _serialized == ""), "TUNNELNETWORK data deserialization failed. No data recieved.")
 	local _deserialized = {}
@@ -194,7 +194,7 @@ function SchemeUI:Refresh()
 			self.sanityicon:SetPosition(-110, -142)
 			self.sanitynum:SetPosition(-73, -142)
 		end
-		self.sanitynum:SetString(": "..self.numsanity)
+		self.sanitynum:SetString(": "..self.numstat)
 		self.sanitynum:Show()
 		self.sanityicon:Show()
 	end)

@@ -7,12 +7,6 @@ local assets =
     Asset("ANIM", "anim/swap_staffs.zip"),
 }
 
-local function SetState(inst, data)
-	local condition = GetCanpell(data.owner)
-	inst.components.spellcard:SetCondition(condition)
-	inst.canspell:set(condition)
-end
-
 local function onequip(inst, owner)
 	owner.AnimState:OverrideSymbol("swap_object", "swap_staffs", "swap_purplestaff")
     owner.AnimState:Show("ARM_carry")
