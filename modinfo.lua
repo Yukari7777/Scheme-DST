@@ -1,5 +1,5 @@
 name = "Scheme"
-version = "2.0"
+version = "1.999"
 description = "Suspicious, Creepy gaps linking two spaces.\nThis is also API of YakumoYukari.\nVersion : "..version
 author = "Yakumo Yukari"
 forumthread = ""
