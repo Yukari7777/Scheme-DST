@@ -14,6 +14,8 @@ Assets = {
 	Asset( "ATLAS", "images/inventoryimages/schemetool.xml" ),
 	Asset( "IMAGE", "images/inventoryimages/sanitypanel.tex" ),
 	Asset( "ATLAS", "images/inventoryimages/sanitypanel.xml" ),
+	Asset( "IMAGE", "images/inventoryimages/powerpanel.tex" ),
+	Asset( "ATLAS", "images/inventoryimages/powerpanel.xml" ),
 
 	Asset( "ANIM" , "anim/ui_board_5x1.zip"),
 }
@@ -92,7 +94,7 @@ AddClassPostConstruct("screens/playerhud", function(self, anim, owner)
 	end
 end)
 
-AddRecipe("schemetool", {Ingredient("nightmarefuel", 5), Ingredient("purplegem", 3), Ingredient("orangemooneye", 2)}, RECIPETABS.MAGIC, TECH.MAGIC_TWO, nil, nil, nil, nil, nil, "images/inventoryimages/schemetool.xml", "schemetool.tex")
+AddRecipe("schemetool", {Ingredient("telestaff", 1), Ingredient("moonrocknugget", 12), Ingredient("orangegem", 6)}, RECIPETABS.MAGIC, TECH.MAGIC_TWO, nil, nil, nil, nil, nil, "images/inventoryimages/schemetool.xml", "schemetool.tex")
 
 modimport "scripts/strings_scheme.lua"
 modimport "scripts/schememanager.lua"

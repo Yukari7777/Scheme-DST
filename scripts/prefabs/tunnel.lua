@@ -4,6 +4,10 @@ local assets =
 	Asset("ANIM", "anim/ui_board_5x1.zip"),
 }
 
+local important_prefabs = {
+	"abigail_flower", "lighter", "lucy", "yukarihat", "yukariumbre", "scheme"
+}
+
 local function onsave(inst, data)
 	data.index = inst.components.scheme.index
 	data.owner = inst.components.scheme.owner
@@ -35,8 +39,31 @@ local function GetDesc(inst, viewer)
 	return string.format( text )
 end
 
-local function onaccept(inst, giver, item) -- Æ¡¿¡¿§
-	giver:PushEvent("makefriend")
+local function IsImportantItem(item)
+	if item:HasTag("irreplaceable") or item:HasTag("nonpotatable") then return true end
+
+	for k, v in pairs(important_prefabs) do
+		if item.prefab == v then
+			return true
+		end
+	end
+
+	for k, v in pairs(item.components) do
+		if string.find(k, "specific") ~= nil then-- In case some mod item have thier own components 
+			return true
+		end
+	end
+
+	return false
+end
+
+local function onaccept(inst, giver, item)
+	if IsImportantItem(item) then
+		inst.components.inventory:DropItem(item)
+	else
+		item:Remove()
+		giver:PushEvent("makefriend")
+	end
 end
 
 local function fn()
@@ -81,10 +108,11 @@ local function fn()
 	inst:AddComponent("trader")
     inst.components.trader.acceptnontradable = true
     inst.components.trader.onaccept = onaccept
-    inst.components.trader.deleteitemonaccept = true
+    inst.components.trader.deleteitemonaccept = false
 
 	inst.OnSave = onsave
 	inst.OnLoad = onload
+	inst.Important = important_prefabs
 	inst.OnRemoveEntity = onremove
 
     return inst

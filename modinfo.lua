@@ -1,5 +1,5 @@
 name = "Scheme"
-version = "1.999"
+version = "2.0"
 description = "Suspicious, Creepy gaps linking two spaces.\nThis is also API of YakumoYukari.\nVersion : "..version
 author = "Yakumo Yukari"
 forumthread = ""
@@ -84,7 +84,7 @@ configuration_options = {
 	{
 		name = "alterval",
 		label = "Alternatives value(대체템 가치)",
-		hover = "Set alternative's value.\n대안템의 가치를 정합니다.",
+		hover = "Set alternative's value.\n대체템의 가치를 정합니다.",
 		options = alterval,
 		default = 50,
 	},
