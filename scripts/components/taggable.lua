@@ -185,9 +185,9 @@ function Taggable:DoAction(doer, _text, index) --Some.. bad example of implement
 		doer:DoTaskInTime(0.8, function()
 			self.inst.components.scheme:Activate(doer, index)
 		end)
-		doer:DoTaskInTime(1.5, function() -- Move entities outside of map border inside
+		doer:DoTaskInTime(3, function() -- Move entities outside of map border inside
 			if not doer:IsOnValidGround() then
-				local dest = GLOBAL.FindNearbyLand(doer:GetPosition(), 8)
+				local dest = FindNearbyLand(doer:GetPosition(), 8)
 				if dest ~= nil then
 					if doer.Physics ~= nil then
 						doer.Physics:Teleport(dest:Get())
