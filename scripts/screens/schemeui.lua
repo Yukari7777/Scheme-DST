@@ -70,10 +70,10 @@ local SchemeUI = Class(Screen, function(self, owner, attach)
 		self.alternum:Hide()
 	end
 
-	self.sanityicon = self.destspanel:AddChild(Image("images/inventoryimages/sanitypanel.xml", "sanitypanel.tex"))
-	self.sanityicon:SetPosition(-40, -145)
-	self.sanityicon:SetSize(35, 35)
-	self.sanityicon:Hide()
+	self.staticon = self.destspanel:AddChild(Image("images/inventoryimages/sanitypanel.xml", "sanitypanel.tex"))
+	self.staticon:SetPosition(-40, -145)
+	self.staticon:SetSize(35, 35)
+	self.staticon:Hide()
 
 	self.sanitynum = self.destspanel:AddChild(Text(BODYTEXTFONT, 20))
 	self.sanitynum:SetPosition(-3, -145)
@@ -184,6 +184,11 @@ function SchemeUI:Refresh()
 					table.remove(list, k)
 				end
 			end
+
+			if taggable.isyukari:value() then -- for some reason, widget itself doesn't get enough information to have self.inst.prefab nor can do self.inst:HasTag(). So I have to do this.
+				self.staticon:SetTexture("images/inventoryimages/powerpanel.xml", "powerpanel.tex")
+				self.staticon:SetSize(35, 35)
+			end
 		end
 
 		self.destdata = list
@@ -196,12 +201,12 @@ function SchemeUI:Refresh()
 			self.alternum:Show()
 			self.altericon:Show()
 		else
-			self.sanityicon:SetPosition(-110, -142)
+			self.staticon:SetPosition(-110, -142)
 			self.sanitynum:SetPosition(-73, -142)
 		end
 		self.sanitynum:SetString(": "..self.numstat)
 		self.sanitynum:Show()
-		self.sanityicon:Show()
+		self.staticon:Show()
 	end)
 end
 

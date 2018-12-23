@@ -10,7 +10,7 @@ local function onbuilt(inst, data)
 end
 
 local function onselect(inst, data)
-    inst.components.taggable:SelectPopup(data.spawner)
+    inst.components.taggable:SelectPopup(data.user)
 end
 
 --V2C: NOTE: do not add "writeable" tag to pristine state because it is more
@@ -99,14 +99,61 @@ function Taggable:BeginWriting(doer)
         self.inst:ListenForEvent("ms_closepopups", self.onclosepopups, doer)
         self.inst:ListenForEvent("onremove", self.onclosepopups, doer)
 
-        if doer.HUD ~= nil then -- Non-deicated-No-cave server
+        if doer.HUD ~= nil then -- Non-deicated-No-cave server host
             self.screen = taggables.makescreen(self.inst, doer)
         end
+	else
+		if doer.components.talker ~= nil then
+			doer.components.talker:Say(GetString(doer.prefab, "ACTIONFAIL_GENERIC"))
+		end
     end
 end
 
+local function IsNearDanger(inst)
+    local hounded = TheWorld.components.hounded
+    if hounded ~= nil and (hounded:GetWarning() or hounded:GetAttacking()) then
+        return true
+    end
+    local burnable = inst.components.burnable
+    if burnable ~= nil and (burnable:IsBurning() or burnable:IsSmoldering()) then
+        return true
+    end
+    -- See entityreplica.lua (for _combat tag usage)
+    if inst:HasTag("spiderwhisperer") and not inst:HasTag("realyoukai") then
+        --Danger if:
+        -- being targetted
+        -- OR near monster or pig that is neither player nor spider
+        -- ignore shadow monsters when not insane
+        return FindEntity(inst, 10,
+            function(target)
+                return (target.components.combat ~= nil and target.components.combat.target == inst)
+                    or ((target:HasTag("monster") or target:HasTag("pig")) and
+                        not (target:HasTag("player") or target:HasTag("spider")) and
+                        not (inst.components.sanity:IsSane() and target:HasTag("shadowcreature")))
+            end,
+            nil, nil, { "monster", "pig", "_combat" }) ~= nil
+    end
+    --Danger if:
+    -- being targetted
+    -- OR near monster that is not player
+    -- ignore shadow monsters when not insane
+    return FindEntity(inst, 10,
+        function(target)
+            return (target.components.combat ~= nil and target.components.combat.target == inst)
+                or (target:HasTag("monster") and
+                    not target:HasTag("player") and
+                    not (inst.components.sanity:IsSane() and target:HasTag("shadowcreature")))
+        end,
+        nil, nil, { "monster", "_combat" }) ~= nil
+end
+
 function Taggable:SelectPopup(doer)
+	if IsNearDanger(doer) then 
+		doer.components.talker:Say(GetString(doer.prefab, "NODANGERSCHEME"))
+		return 
+	end
     if self.writer == nil then
+		self.inst.sg:GoToState("opening")
 		self.inst.classified.shouldUI:set(true)
         self.inst:StartUpdatingComponent(self)
 
@@ -114,9 +161,13 @@ function Taggable:SelectPopup(doer)
         self.inst:ListenForEvent("ms_closepopups", self.onclosepopups, doer)
         self.inst:ListenForEvent("onremove", self.onclosepopups, doer)
 
-        if doer.HUD ~= nil then
+        if doer.HUD ~= nil then -- Non-deicated-No-cave server host
             self.screen = doer.HUD:ShowSchemeUI(self.inst)
         end
+	else
+		if doer.components.talker ~= nil then
+			doer.components.talker:Say(GetString(doer.prefab, "ACTIONFAIL_GENERIC"))
+		end
     end
 end
 

@@ -9,6 +9,7 @@ local Taggable = Class(function(self, inst)
 	self.index = net_byte(inst.GUID, "taggable.index")
 	self.numalter = net_byte(inst.GUID, "taggable.numalter")
 	self.numstat = net_byte(inst.GUID, "taggable.numstat")
+	self.isyukari = net_bool(inst.GUID, "taggable.isyukari") -- for some reason, widget itself doesn't get enough information to have self.inst.prefab nor can do self.inst:HasTag(). So I have to do this.
 
     if TheWorld.ismastersim then
         self.classified = SpawnPrefab("taggable_classified")

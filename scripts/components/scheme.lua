@@ -20,8 +20,8 @@ function scheme:Activate(doer, index)
 	local index = tonumber(index)
 	if not self:IsConnected(index) then return end
 	local numalter, numstat = _G.GetGCost(doer, false)
+	if doer.prefab == "yakumoyukari" and doer.components.power.current < doer.components.upgrader.schemecost then doer.components.talker:Say(GetString(doer.prefab, "DESCRIBE_LOWPOWER")) end
 	if doer.components.sanity ~= nil and doer.components.sanity.current < numstat then return doer.components.talker:Say(GetString(doer.prefab, "LOWUSEGSANITY")) end
-
 	
 	if doer:HasTag("player") then
 		doer.SoundEmitter:KillSound("wormhole_travel")
@@ -142,9 +142,8 @@ function scheme:Disconnect(index)
 	_G.NUMTUNNEL = _G.NUMTUNNEL - 1
 end
 
-function scheme:SelectDest(caster)
-	self.inst.sg:GoToState("opening")
-	self.inst:PushEvent("select", {spawner = caster})
+function scheme:SelectDest(player)
+	self.inst:PushEvent("select", {user = player})
 
 	return true
 end

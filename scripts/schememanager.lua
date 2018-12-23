@@ -32,10 +32,12 @@ GLOBAL.GetGCost = function(player, isspawn, inst)
 	local numalter = 0
 	local numtouse = 0
 	local leftover = _COST
+	local isyukari = false
 
 	if player.prefab == "yakumoyukari" then --temp
 		numalter = 0
-		leftover = isspawn and 75 or 0
+		leftover = isspawn and 75 or player.components.upgrader.schemecost
+		isyukari = true
 	elseif alterprefab ~= "noalter" then
 		numalter = FindItemInSlots(player.replica.inventory:GetItems(), numalter)
 		for k, v in pairs(player.replica.inventory:GetEquips()) do
@@ -49,6 +51,7 @@ GLOBAL.GetGCost = function(player, isspawn, inst)
 	if inst ~= nil then --If this called by RPC,
 		inst.replica.taggable.numalter:set(numtouse)
 		inst.replica.taggable.numstat:set(leftover)
+		inst.replica.taggable.isyukari:set(isyukari)
 	else
 		return numtouse, leftover
 	end
