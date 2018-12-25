@@ -18,6 +18,8 @@ Assets = {
 	Asset( "ATLAS", "images/inventoryimages/powerpanel.xml" ),
 
 	Asset( "ANIM" , "anim/ui_board_5x1.zip"),
+	Asset( "ANIM" , "anim/swap_schemetool.zip"),
+	Asset( "ANIM" , "anim/schemetool.zip"),
 }
 
 ----- GLOBAL & require list -----

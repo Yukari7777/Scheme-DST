@@ -5,7 +5,7 @@ local assets =
 }
 
 local important_prefabs = {
-	"abigail_flower", "lighter", "lucy", "yukarihat", "yukariumbre", "scheme"
+	"abigail_flower", "lighter", "lucy", "yukarihat", "yukariumbre", "scheme", "schemetool"
 }
 
 local function onsave(inst, data)

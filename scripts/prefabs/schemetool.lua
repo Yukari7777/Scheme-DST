@@ -1,14 +1,12 @@
 local assets =
-{   
-	Asset("ANIM", "anim/spell.zip"),    
+{    
 	Asset("ATLAS", "images/inventoryimages/schemetool.xml"),    
-
-	Asset("ANIM", "anim/staffs.zip"),
-    Asset("ANIM", "anim/swap_staffs.zip"),
+    Asset("ANIM", "anim/swap_schemetool.zip"),
+    Asset("ANIM", "anim/schemetool.zip"),
 }
 
 local function onequip(inst, owner)
-	owner.AnimState:OverrideSymbol("swap_object", "swap_staffs", "swap_purplestaff")
+	owner.AnimState:OverrideSymbol("swap_object", "swap_schemetool", "swap")
     owner.AnimState:Show("ARM_carry")
     owner.AnimState:Hide("ARM_normal")
 end
@@ -31,8 +29,8 @@ local function fn()
 
 	MakeInventoryPhysics(inst)
 	
-	inst.AnimState:SetBank("spell")    
-	inst.AnimState:SetBuild("spell")    
+	inst.AnimState:SetBank("schemetool")    
+	inst.AnimState:SetBuild("schemetool")    
 	inst.AnimState:PlayAnimation("idle")    
 
 	inst:AddTag("scheme")
