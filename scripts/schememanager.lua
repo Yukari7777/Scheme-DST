@@ -36,7 +36,7 @@ GLOBAL.GetGCost = function(player, isspawn, inst)
 
 	if player.prefab == "yakumoyukari" then --temp
 		numalter = 0
-		leftover = isspawn and 75 or player.components.upgrader.schemecost
+		leftover = isspawn and TUNING.YUKARI or player.components.upgrader.schemecost or 75
 		isyukari = true
 	elseif alterprefab ~= "noalter" then
 		numalter = FindItemInSlots(player.replica.inventory:GetItems(), numalter)
@@ -58,7 +58,7 @@ GLOBAL.GetGCost = function(player, isspawn, inst)
 end
 AddModRPCHandler("scheme", "getcost", GLOBAL.GetGCost)
 
-GLOBAL.ConsumeGateCost = function(player, numitem, numstat)
+GLOBAL.ConsumeGateCost = function(player, numitem, numstat, isspawn)
 	local leftoveritem = numitem
 	if leftoveritem ~= 0 then
 		leftoveritem = ConsumeItemInSlots(player.replica.inventory:GetItems(), leftoveritem)
@@ -72,7 +72,23 @@ GLOBAL.ConsumeGateCost = function(player, numitem, numstat)
 	if player.components.power ~= nil then
 		player.components.power:DoDelta(-numstat)
 	elseif player.components.sanity ~= nil then
-		player.components.sanity:DoDelta(-numstat)
+		if alterprefab ~= "noalter" and not isspawn then
+			for k, v in pairs(player.components.inventory.equipslots) do
+				if v:HasTag("shadowdominance") or v:HasTag("schemetool") then
+					if numstat == 0 then break end
+					if v.components.finiteuses ~= nil then
+						v.components.finiteuses:Use(3)
+						numstat = 0
+					elseif v.components.armor ~= nil then
+						v.components.armor:TakeDamage(numstat)
+						numstat = 0
+					end
+				end
+			end
+		end
+		if numstat ~= 0 then
+			player.components.sanity:DoDelta(-numstat)
+		end
 	end
 end
 

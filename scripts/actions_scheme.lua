@@ -31,9 +31,9 @@ SELECTG.priority = 8
 local function action_scheme(inst, doer, pos, actions, right)
 	if right then
 		if inst.prefab == "yukariumbre" and doer.prefab == "yakumoyukari" and doer.replica.power ~= nil then
-			if inst.isunfolded:value() and doer.replica.power:GetCurrent() >= TUNING.YDEFAULT.SPAWNG_POWER_COST then
+			if inst.isunfolded:value() and doer.replica.power:GetCurrent() >= TUNING.YUKARI.SPAWNG_POWER_COST then
 				table.insert(actions, ACTIONS.SPAWNG)
-			elseif not inst.isunfolded:value() and doer.replica.power:GetCurrent() >= TUNING.YDEFAULT.TELEPORT_POWER_COST then
+			elseif not inst.isunfolded:value() and doer.replica.power:GetCurrent() >= TUNING.YUKARI.TELEPORT_POWER_COST then
 				table.insert(actions, ACTIONS.YTELE)
 			end
 		else

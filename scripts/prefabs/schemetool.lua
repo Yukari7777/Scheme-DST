@@ -1,5 +1,4 @@
-local assets =
-{    
+local assets = {    
 	Asset("ATLAS", "images/inventoryimages/schemetool.xml"),    
     Asset("ANIM", "anim/swap_schemetool.zip"),
     Asset("ANIM", "anim/schemetool.zip"),
@@ -34,6 +33,7 @@ local function fn()
 	inst.AnimState:PlayAnimation("idle")    
 
 	inst:AddTag("scheme")
+	inst:AddTag("schemetool")
 	inst:AddTag("castontargets")
 	inst.canspell = net_bool(inst.GUID, "canspell")
 
@@ -50,8 +50,12 @@ local function fn()
 	inst:AddComponent("inventoryitem")   
 	inst.components.inventoryitem.atlasname = "images/inventoryimages/schemetool.xml" 
 
-	inst:AddComponent("equippable")  
-	inst.components.equippable:SetOnEquip( onequip )    
+	inst:AddComponent("finiteuses")    
+	inst.components.finiteuses:SetMaxUses(TUNING.SCHEMETOOL_USES)
+	inst.components.finiteuses:SetUses(TUNING.SCHEMETOOL_USES)
+
+	inst:AddComponent("equippable")
+	inst.components.equippable:SetOnEquip( onequip )
 	inst.components.equippable:SetOnUnequip( onunequip )
 	
 	return inst

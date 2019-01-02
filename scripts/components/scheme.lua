@@ -16,22 +16,33 @@ function scheme:OnActivate(other, doer)
 	end)
 end
 
-function scheme:Activate(doer, index)
-	local index = tonumber(index)
+function scheme:CheckConditionAndCost(doer, index)
 	if not self:IsConnected(index) then return end
 	local numalter, numstat = _G.GetGCost(doer, false)
-	if doer.prefab == "yakumoyukari" and doer.components.power.current < doer.components.upgrader.schemecost then return doer.components.talker:Say(GetString(doer.prefab, "DESCRIBE_LOWPOWER")) end
-	if doer.components.sanity ~= nil and doer.components.sanity.current < numstat then return doer.components.talker:Say(GetString(doer.prefab, "LOWUSEGSANITY")) end
-	
+	if doer:HasTag("yakumoyukari") and doer.components.power ~= nil and doer.components.talker ~= nil 
+	and doer.components.power.current < doer.components.upgrader.schemecost then 
+		doer.components.talker:Say(GetString(doer.prefab, "DESCRIBE_LOWPOWER"))
+		return
+	elseif not doer.components.inventory:EquipHasTag("shadowdominance") and (doer.components.sanity ~= nil and doer.components.sanity.current < numstat) then 
+		doer.components.talker:Say(GetString(doer.prefab, "LOWUSEGSANITY")) 
+		return 
+	end
+
 	if doer:HasTag("player") then
 		doer.SoundEmitter:KillSound("wormhole_travel")
 		_G.ConsumeGateCost(doer, numalter, numstat)
 	end
+	return true
+end
+
+function scheme:Activate(doer, index)
+	local index = tonumber(index)
+	if not self:CheckConditionAndCost(doer, index) then return end
 
 	self:OnActivate(self:GetTarget(index), doer)
 	self:Teleport(doer, index)
 
-	if doer.components.leader then
+	if doer.components.leader ~= nil then
 		for follower,v in pairs(doer.components.leader.followers) do
 			self:Teleport(follower, index)
 		end
@@ -40,7 +51,7 @@ function scheme:Activate(doer, index)
 	local eyebone = nil
 
 	--special case for the chester_eyebone: look for inventory items with followers
-	if doer.components.inventory then
+	if doer.components.inventory ~= nil then
 		for k,item in pairs(doer.components.inventory.itemslots) do
 			if item.components.leader then
 				if item:HasTag("chester_eyebone") then
@@ -53,7 +64,7 @@ function scheme:Activate(doer, index)
 		end
 		-- special special case, look inside equipped containers
 		for k,equipped in pairs(doer.components.inventory.equipslots) do
-			if equipped and equipped.components.container then
+			if equipped and equipped.components.container ~= nil then
 				local container = equipped.components.container
 				for j,item in pairs(container.slots) do
 					if item.components.leader then
@@ -68,7 +79,7 @@ function scheme:Activate(doer, index)
 			end
 		end
 		-- special special special case: if we have an eyebone, then we have a container follower not actually in the inventory. Look for inventory items with followers there.
-		if eyebone and eyebone.components.leader then
+		if eyebone and eyebone.components.leader ~= nil then
 			for follower,v in pairs(eyebone.components.leader.followers) do
 				if follower and (not follower.components.health or (follower.components.health and not follower.components.health:IsDead())) and follower.components.container then
 					for j,item in pairs(follower.components.container.slots) do

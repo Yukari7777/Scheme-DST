@@ -1,6 +1,6 @@
 name = "Scheme"
-version = "2.0"
-description = "Suspicious, Creepy gaps linking space and space.\n수상하고, 소름돋는, 공간과 공간을 잇는 틈새.\n\nVersion : "..version
+version = "2.1"
+description = "Suspicious, Creepy gaps linking space and space.\n수상하고, 소름돋는, 공간과 공간을 잇는 틈새.\n\n\nVersion : "..version
 author = "Yakumo Yukari"
 forumthread = ""
 api_version = 6
@@ -10,9 +10,13 @@ dst_compatible = true
 dont_starve_compatible = false
 reign_of_giants_compatible = false
 all_clients_require_mod = true 
-
 icon_atlas = "modicon.xml"
 icon = "modicon.tex"
+
+folder_name = folder_name or "workshop-"
+if not folder_name:find("workshop-") then
+    name = name.." - Test"
+end
 
 server_filter_tags = {
 	"utilities",
@@ -89,6 +93,26 @@ configuration_options = {
 		default = 50,
 	},
 
+	{
+		name = "ignoredanger",
+		label = "Ignore danger(위험 무시)",
+		hover = "Should ignore danger nearby on teleporting?\n순간이동 할 때 주변의 위험 요소들을 무시합니까?",
+		options = {
+			{ description = "no(무시안함)", data = false },
+			{ description = "yes(무시함)",	data = true },
+		},
+		default = false,
+	},
+	{
+		name = "ignoreboss",
+		label = "Ignore boss(보스 무시)",
+		hover = "Should teleport when a boss is nearby?\n보스가 있을때도 순간이동이 가능합니까?",
+		options = {
+			{ description = "no(무시안함)", data = false },
+			{ description = "yes(무시함)",	data = true },
+		},
+		default = false,
+	},
 --	{
 --		name = "permission",
 --		label = "Global permission level",

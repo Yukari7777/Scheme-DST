@@ -1,3 +1,5 @@
+-- Aw.. This is now something complex component not 'tag'gable...
+
 local taggables = require"taggables"
 
 local function gettext(inst, viewer)
@@ -109,42 +111,95 @@ function Taggable:BeginWriting(doer)
     end
 end
 
+
+local DANGER_RADIUS = 10
+local function IsInDangerFromShadowCreatures(inst)
+	-- Danger if:
+	-- insane and near shadowcreature.
+	-- ignore when shadowdominance
+	-- being targetted but not ShouldSubmitToTarget.
+	local ignoreshadowcreature = inst.components.inventory:EquipHasTag("shadowdominance") or inst.components.sanity:IsSane()
+
+	local isdanger = false
+	local x, y, z = inst.Transform:GetWorldPosition()
+	local ents = TheSim:FindEntities(x, y, z, DANGER_RADIUS * 2,  { "_combat", "shadowcreature" })
+	for k, v in ipairs(ents) do
+		if ((not ignoreshadowcreature) or (v.components.combat ~= nil and v.components.combat.target == inst)) and not v.components.shadowsubmissive:ShouldSubmitToTarget(inst) then
+			isdanger = true
+			break
+		end
+	end
+
+	return isdanger
+end
+
 local function IsNearDanger(inst)
-    local hounded = TheWorld.components.hounded
-    if hounded ~= nil and (hounded:GetWarning() or hounded:GetAttacking()) then
-        return true
-    end
-    local burnable = inst.components.burnable
-    if burnable ~= nil and (burnable:IsBurning() or burnable:IsSmoldering()) then
-        return true
-    end
-    -- See entityreplica.lua (for _combat tag usage)
-    if inst:HasTag("spiderwhisperer") and not inst:HasTag("realyoukai") then
-        --Danger if:
-        -- being targetted
-        -- OR near monster or pig that is neither player nor spider
-        -- ignore shadow monsters when not insane
-        return FindEntity(inst, 10,
-            function(target)
-                return (target.components.combat ~= nil and target.components.combat.target == inst)
-                    or ((target:HasTag("monster") or target:HasTag("pig")) and
-                        not (target:HasTag("player") or target:HasTag("spider")) and
-                        not (inst.components.sanity:IsSane() and target:HasTag("shadowcreature")))
-            end,
-            nil, nil, { "monster", "pig", "_combat" }) ~= nil
-    end
-    --Danger if:
-    -- being targetted
-    -- OR near monster that is not player
-    -- ignore shadow monsters when not insane
-    return FindEntity(inst, 10,
-        function(target)
-            return (target.components.combat ~= nil and target.components.combat.target == inst)
-                or (target:HasTag("monster") and
-                    not target:HasTag("player") and
-                    not (inst.components.sanity:IsSane() and target:HasTag("shadowcreature")))
-        end,
-        nil, nil, { "monster", "_combat" }) ~= nil
+	local isnearbosses = _G.SCHEME_IGNOREBOSS or FindEntity(inst, DANGER_RADIUS * 2, nil, { "epic" }, { "spiderqueen", "leif" }, { "_combat" }) ~= nil or false
+
+	local isdanger = false
+	if not _G.SCHEME_IGNOREDANGER then
+		local x, y, z = inst.Transform:GetWorldPosition()
+		local ents = TheSim:FindEntities(x, y, z, DANGER_RADIUS, { "_combat" }, { "shadowcreature" }) -- See entityreplica.lua (for _combat tag usage)
+
+		if ents ~= nil then
+			if inst:HasTag("realyoukai") then
+				-- Danger if:
+				-- being targetted
+				-- OR near monster that is neither player nor spider
+				for k, v in ipairs(ents) do
+					if v:HasTag("monster") and not (v:HasTag("player") or v:HasTag("spider")) or (v.components.combat ~= nil and v.components.combat.target == inst) then
+						isdanger = true
+						break
+					end
+				end
+			elseif inst:HasTag("youkai") then
+				-- Danger if:
+				-- being targetted
+				-- OR near monster or pig or spider that is not player
+				-- note that "pig" tag includes somewhat things like bunnymans.
+				for k, v in ipairs(ents) do
+					if (v:HasTag("monster") or v:HasTag("pig") or v:HasTag("spider")) and not v:HasTag("player") or (v.components.combat ~= nil and v.components.combat.target == inst) then
+						isdanger = true
+						break
+					end
+				end
+			elseif inst:HasTag("spiderwhisperer") then
+				-- Danger if:
+				-- being targetted
+				-- OR near monster or pig that is neither player nor spider
+				for k, v in ipairs(ents) do
+					if (v:HasTag("monster") or v:HasTag("pig")) and not (v:HasTag("player") or v:HasTag("spider")) or (v.components.combat ~= nil and v.components.combat.target == inst) then
+						isdanger = true
+						break
+					end
+				end
+			else
+				--Danger if:
+				-- being targetted
+				-- OR near monster that is not player
+				for k, v in ipairs(ents) do
+					if v:HasTag("monster") and not v:HasTag("player") or (v.components.combat ~= nil and v.components.combat.target == inst) then
+						isdanger = true
+						break
+					end
+				end
+			end
+		end
+
+		local hounded = TheWorld.components.hounded
+		if hounded ~= nil and (hounded:GetWarning() or hounded:GetAttacking()) then
+			isdanger = true
+		end
+
+		local burnable = inst.components.burnable
+		if burnable ~= nil and (burnable:IsBurning() or burnable:IsSmoldering()) then
+			isdanger = true
+		end
+
+		isdanger = isdanger or IsInDangerFromShadowCreatures(inst)
+	end
+	
+	return isdanger or isnearbosses
 end
 
 function Taggable:SelectPopup(doer)

@@ -40,19 +40,21 @@ end
 function MakeGate:Create(pt, caster)
 	local numalter, numstat = _G.GetGCost(caster, true)
 	if caster.components.sanity ~= nil and math.ceil(caster.components.sanity.current) < numstat then caster.components.talker:Say(GetString(caster.prefab, "LOWCGSANITY")) return true end
-	_G.ConsumeGateCost(caster, numalter, numstat)
+	_G.ConsumeGateCost(caster, numalter, numstat, true)
+	if self.inst:HasTag("schemetool") then
+		self.inst.components.finiteuses:Use(6)
+	end
 
 	caster.SoundEmitter:PlaySound("dontstarve/common/staff_blink")
-	if caster.components.health then
+	if caster.components.health ~= nil then
 		caster.components.health:SetInvincible(true)
 	end
 	caster:DoTaskInTime(0.5, function() 
-		if caster.components.health then
+		if caster.components.health ~= nil then
 			caster.components.health:SetInvincible(false)
 		end
 		if caster ~= nil then
 			caster.SoundEmitter:PlaySound("dontstarve/common/staff_dissassemble")
-
 		end
 		local scheme = SpawnPrefab("tunnel")
 		scheme.components.scheme:InitGate()

@@ -29,6 +29,8 @@ local RECIPETABS = GLOBAL.RECIPETABS
 local TheFrontEnd = GLOBAL.TheFrontEnd
 local TaggableWidget = require "widgets/taggablewidget"
 local SchemeUI = require "screens/schemeui"
+GLOBAL.SCHEME_IGNOREDANGER = GetModConfigData("ignoredanger")
+GLOBAL.SCHEME_IGNOREBOSS = GetModConfigData("ignoreboss")
 
 require "class"
 
@@ -96,6 +98,7 @@ AddClassPostConstruct("screens/playerhud", function(self, anim, owner)
 	end
 end)
 
+TUNING.SCHEMETOOL_USES = 36
 AddRecipe("schemetool", {Ingredient("telestaff", 1), Ingredient("moonrocknugget", 12), Ingredient("orangegem", 6)}, RECIPETABS.MAGIC, TECH.MAGIC_TWO, nil, nil, nil, nil, nil, "images/inventoryimages/schemetool.xml", "schemetool.tex")
 
 modimport "scripts/strings_scheme.lua"
