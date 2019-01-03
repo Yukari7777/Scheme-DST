@@ -37,7 +37,7 @@ GLOBAL.GetGCost = function(player, isspawn, inst)
 
 	if player.prefab == "yakumoyukari" then --temp
 		numalter = 0
-		leftover = isspawn and TUNING.YUKARI or player.components.upgrader.schemecost or 75
+		leftover = isspawn and TUNING.YUKARI.SPAWNG_POWER_COST or player.components.upgrader.schemecost or 75
 		isyukari = true
 	elseif alterprefab ~= "noalter" then
 		numalter = FindItemInSlots(player.replica.inventory:GetItems(), numalter)
