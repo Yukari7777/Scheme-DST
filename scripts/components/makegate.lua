@@ -67,6 +67,9 @@ end
 
 function MakeGate:Configurate(target, caster)
 	target:PushEvent("tag", {spawner = caster})
+	if self.inst:HasTag("schemetool") then
+		self.inst.components.finiteuses:Use(1)
+	end
 
 	return true
 end

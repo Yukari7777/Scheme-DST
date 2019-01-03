@@ -2,6 +2,7 @@ GLOBAL.TUNNELNETWORK = {}
 GLOBAL.NUMTUNNEL = 0
 local alterprefab = GetModConfigData("alter")
 local altervalue = GetModConfigData("alterval")
+local usecost = GetModConfigData("usecost")
 
 local function FindItemInSlots(TheSlot, num)
 	for k, v in pairs(TheSlot) do
@@ -27,7 +28,7 @@ local function ConsumeItemInSlots(TheSlot, num)
 end
 
 GLOBAL.GetGCost = function(player, isspawn, inst)
-	local _COST = isspawn and GetModConfigData("spawncost") or GetModConfigData("usecost")
+	local _COST = isspawn and GetModConfigData("spawncost") or usecost
 	local maxuse = math.floor(_COST / altervalue)
 	local numalter = 0
 	local numtouse = 0
@@ -77,7 +78,7 @@ GLOBAL.ConsumeGateCost = function(player, numitem, numstat, isspawn)
 				if v:HasTag("shadowdominance") or v:HasTag("schemetool") then
 					if numstat == 0 then break end
 					if v.components.finiteuses ~= nil then
-						v.components.finiteuses:Use(3)
+						v.components.finiteuses:Use(math.ceil(numstat / usecost * 3))
 						numstat = 0
 					elseif v.components.armor ~= nil then
 						v.components.armor:TakeDamage(numstat)
