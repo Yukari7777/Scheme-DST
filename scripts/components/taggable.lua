@@ -7,11 +7,11 @@ local function gettext(inst, viewer)
     return text and string.format('"%s"', text) or GetDescription(viewer, inst, "UNWRITTEN")
 end
 
-local function onbuilt(inst, data)
+local function onspawned(inst, data)
     inst.components.taggable:BeginWriting(data.spawner)
 end
 
-local function onselect(inst, data)
+local function onselected(inst, data)
     inst.components.taggable:SelectPopup(data.user)
 end
 
@@ -46,8 +46,8 @@ local Taggable = Class(function(self, inst)
 
     self.generatorfn = nil
 
-    self.inst:ListenForEvent("tag", onbuilt)
-    self.inst:ListenForEvent("select", onselect)
+    self.inst:ListenForEvent("tag", onspawned)
+    self.inst:ListenForEvent("select", onselected)
 end,
 nil,
 {
@@ -145,9 +145,9 @@ local function IsNearDanger(inst)
 			if inst:HasTag("realyoukai") then
 				-- Danger if:
 				-- being targetted
-				-- OR near monster that is neither player nor spider
+				-- OR near monster that is not player, spider, bat, 
 				for k, v in ipairs(ents) do
-					if v:HasTag("monster") and not (v:HasTag("player") or v:HasTag("spider")) or (v.components.combat ~= nil and v.components.combat.target == inst) then
+					if v:HasTag("monster") and not (v:HasTag("player") or v:HasTag("spider") or v:HasTag("bat")) or (v.components.combat ~= nil and v.components.combat.target == inst) then
 						isdanger = true
 						break
 					end
@@ -335,8 +335,8 @@ end
 function Taggable:OnRemoveFromEntity()
     self:EndAction()
     self.inst:RemoveTag("writeable")
-    self.inst:RemoveEventCallback("tag", onbuilt)
-	self.inst:RemoveEventCallback("select", onselect)
+    self.inst:RemoveEventCallback("tag", onspawned)
+	self.inst:RemoveEventCallback("select", onselected)
 end
 
 Taggable.OnRemoveEntity = Taggable.EndAction

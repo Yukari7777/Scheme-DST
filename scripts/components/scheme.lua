@@ -3,7 +3,7 @@ local scheme = Class(function(self, inst)
 	self.index = nil
 
 	self.owner = nil
-	self.permlevel = 1
+	--self.permlevel = 1
 
 	self.pointer = nil
 end)
@@ -19,11 +19,10 @@ end
 function scheme:CheckConditionAndCost(doer, index)
 	if not self:IsConnected(index) then return end
 	local numalter, numstat = _G.GetGCost(doer, false)
-	if doer:HasTag("yakumoyukari") and doer.components.power ~= nil and doer.components.talker ~= nil 
-	and doer.components.power.current < doer.components.upgrader.schemecost then 
+	if doer:HasTag("yakumoyukari") and doer.components.power ~= nil and doer.components.talker ~= nil and doer.components.power.current < doer.components.upgrader.schemecost then 
 		doer.components.talker:Say(GetString(doer.prefab, "DESCRIBE_LOWPOWER"))
 		return
-	elseif not doer.components.inventory:EquipHasTag("shadowdominance") and (doer.components.sanity ~= nil and doer.components.sanity.current < numstat) then 
+	elseif not doer:HasTag("yakumoyukari") and not doer.components.inventory:EquipHasTag("shadowdominance") and (doer.components.sanity ~= nil and doer.components.sanity.current < numstat) then
 		doer.components.talker:Say(GetString(doer.prefab, "LOWUSEGSANITY")) 
 		return 
 	end
@@ -149,8 +148,10 @@ function scheme:AddToNetwork()
 end
 
 function scheme:Disconnect(index)
-	_G.TUNNELNETWORK[index] = nil
-	_G.NUMTUNNEL = _G.NUMTUNNEL - 1
+	if _G.TUNNELNETWORK[index] ~= nil then
+		_G.TUNNELNETWORK[index] = nil
+		_G.NUMTUNNEL = _G.NUMTUNNEL - 1
+	end
 end
 
 function scheme:SelectDest(player)

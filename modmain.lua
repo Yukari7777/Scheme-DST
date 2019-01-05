@@ -31,6 +31,7 @@ local TaggableWidget = require "widgets/taggablewidget"
 local SchemeUI = require "screens/schemeui"
 GLOBAL.SCHEME_IGNOREDANGER = GetModConfigData("ignoredanger")
 GLOBAL.SCHEME_IGNOREBOSS = GetModConfigData("ignoreboss")
+GLOBAL.SCHEME_ALTERPREFAB = GetModConfigData("alter")
 
 require "class"
 

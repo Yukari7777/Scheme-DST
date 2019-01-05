@@ -35,7 +35,7 @@ GLOBAL.GetGCost = function(player, isspawn, inst)
 	local leftover = _COST
 	local isyukari = false
 
-	if player.prefab == "yakumoyukari" then --temp
+	if player:HasTag("yakumoyukari") then
 		numalter = 0
 		leftover = isspawn and TUNING.YUKARI.SPAWNG_POWER_COST or player.components.upgrader.schemecost or 75
 		isyukari = true
@@ -49,6 +49,7 @@ GLOBAL.GetGCost = function(player, isspawn, inst)
 		numtouse = math.min(maxuse, numalter)
 		leftover = leftover - numtouse * altervalue
 	end
+
 	if inst ~= nil then --If this called by RPC,
 		inst.replica.taggable.numalter:set(numtouse)
 		inst.replica.taggable.numstat:set(leftover)

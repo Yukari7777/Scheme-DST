@@ -40,7 +40,9 @@ local function GetDesc(inst, viewer)
 end
 
 local function IsImportantItem(item)
-	if item:HasTag("irreplaceable") or item:HasTag("nonpotatable") then return true end
+	if item:HasTag("irreplaceable") or item:HasTag("nonpotatable") then 
+		return true 
+	end
 
 	for k, v in pairs(important_prefabs) do
 		if item.prefab == v then
@@ -52,6 +54,10 @@ local function IsImportantItem(item)
 		if string.find(k, "specific") ~= nil then-- In case some mod item have thier own components 
 			return true
 		end
+	end
+
+	if item.prefab == _G.SCHEME_ALTERPREFAB then
+		return true
 	end
 
 	return false
