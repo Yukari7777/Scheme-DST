@@ -27,8 +27,10 @@ local require = GLOBAL.require
 local TECH = GLOBAL.TECH
 local RECIPETABS = GLOBAL.RECIPETABS
 local TheFrontEnd = GLOBAL.TheFrontEnd
+local KnownModIndex = GLOBAL.KnownModIndex
 local TaggableWidget = require "widgets/taggablewidget"
 local SchemeUI = require "screens/schemeui"
+GLOBAL.SCHEME_MODNAME = KnownModIndex:GetModActualName("Scheme - Test") or KnownModIndex:GetModActualName("Scheme")
 GLOBAL.SCHEME_IGNOREDANGER = GetModConfigData("ignoredanger")
 GLOBAL.SCHEME_IGNOREBOSS = GetModConfigData("ignoreboss")
 GLOBAL.SCHEME_ALTERPREFAB = GetModConfigData("alter")
@@ -44,7 +46,6 @@ AddReplicableComponent("taggable")
 local Language =  GetModConfigData("language")
 GLOBAL.SCHEME_LANGUAGE = "en"
 if Language == "AUTO" then
-	local KnownModIndex = GLOBAL.KnownModIndex
 	for _, moddir in ipairs(KnownModIndex:GetModsToLoad()) do
 		local modname = KnownModIndex:GetModInfo(moddir).name
 		if modname == "한글 모드 서버 버전" or modname == "한글 모드 클라이언트 버전" then 

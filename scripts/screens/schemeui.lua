@@ -2,7 +2,7 @@ local Screen = require "widgets/screen"
 local Widget = require "widgets/widget"
 local Text = require "widgets/text"
 local TEMPLATES = require "widgets/redux/templates"
-local modname = KnownModIndex:GetModActualName("Scheme")
+local modname = KnownModIndex:GetModActualName("Scheme - Test") or KnownModIndex:GetModActualName("Scheme")
 local alter = GetModConfigData("alter", modname)
 
 local SchemeUI = Class(Screen, function(self, owner, attach)
@@ -160,7 +160,7 @@ function SchemeUI:Deserialize()
 	end
 
 	self.desttabledirty = _deserialized
-	-- This has another meaning of dirty, which means not a sorted table.
+	-- This has another meaning of dirty; unsorted.
 end
 
 function SchemeUI:Refresh()

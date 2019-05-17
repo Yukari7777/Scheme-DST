@@ -1,5 +1,5 @@
 name = "Scheme"
-version = "2.1.3"
+version = "2.1.4"
 description = "Suspicious, Creepy gaps linking space and space.\n수상하고, 소름돋는, 공간과 공간을 잇는 틈새.\n\n\nVersion : "..version
 author = "Yakumo Yukari"
 forumthread = ""
@@ -13,8 +13,8 @@ all_clients_require_mod = true
 icon_atlas = "modicon.xml"
 icon = "modicon.tex"
 
-folder_name = folder_name or "workshop-"
-if not folder_name:find("workshop-") then
+folder_name = folder_name or ""
+if folder_name:find("Scheme%-DST") then
     name = name.." - Test"
 end
 
