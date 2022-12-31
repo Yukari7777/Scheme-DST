@@ -1,5 +1,5 @@
-name = "Scheme"
-version = "2.1.4"
+name = "Sukima Gap"
+version = "2.1.5"
 description = "Suspicious, Creepy gaps linking space and space.\n수상하고, 소름돋는, 공간과 공간을 잇는 틈새.\n\n\nVersion : "..version
 author = "Yakumo Yukari"
 forumthread = ""
