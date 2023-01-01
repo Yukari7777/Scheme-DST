@@ -45,6 +45,11 @@ function MakeGate:Create(pt, caster)
 		self.inst.components.finiteuses:Use(6)
 	end
 
+	local scheme = SpawnPrefab("tunnel")
+	scheme.components.scheme:InitGate()
+	scheme.Transform:SetPosition(pt.x, pt.y, pt.z)
+	self:Configurate(scheme, caster)
+
 	caster.SoundEmitter:PlaySound("dontstarve/common/staff_blink")
 	if caster.components.health ~= nil then
 		caster.components.health:SetInvincible(true)
@@ -56,10 +61,6 @@ function MakeGate:Create(pt, caster)
 		if caster ~= nil then
 			caster.SoundEmitter:PlaySound("dontstarve/common/staff_dissassemble")
 		end
-		local scheme = SpawnPrefab("tunnel")
-		scheme.components.scheme:InitGate()
-		scheme.Transform:SetPosition(pt.x, pt.y, pt.z)
-		self:Configurate(scheme, caster)
 	end)
 	
 	return true
