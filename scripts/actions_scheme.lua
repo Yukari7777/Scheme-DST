@@ -5,7 +5,7 @@ local ACTIONS = GLOBAL.ACTIONS
 
 local SPAWNG = AddAction("SPAWNG", STRINGS.ACTION_SPAWNG, function(act)
 	if act.invobject and act.invobject.components.makegate then
-        return act.invobject.components.makegate:Create(act.pos, act.doer)
+        return act.invobject.components.makegate:Create(act:GetActionPoint(), act.doer)
     end
 end)
 SPAWNG.priority = 7
